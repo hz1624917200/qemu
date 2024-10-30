@@ -130,7 +130,7 @@ todo_include_todos = False
 
 # Sphinx defaults to warning about use of :option: for options not defined
 # with "option::" in the document being processed. Turn that off.
-suppress_warnings = ["ref.option"]
+suppress_warnings = ["ref.option", "ref.footnote"]
 
 # The rst_epilog fragment is effectively included in every rST file.
 # We use it to define substitutions based on build config that
