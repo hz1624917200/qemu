@@ -158,6 +158,8 @@ makefile-targets := build.ninja ctags TAGS cscope dist clean
 # files are marked as PHONY, however, Make will always try to execute
 # "ninja build.ninja".
 ninja-targets := $(filter-out $(build-files) $(makefile-targets), $(ninja-targets))
+# debug print the targets
+# $(info ninja-targets: $(ninja-targets))
 .PHONY: $(ninja-targets) run-ninja
 $(ninja-targets): run-ninja
 
