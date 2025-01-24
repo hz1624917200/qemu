@@ -49,7 +49,7 @@ class MigrationFile(object):
     def read8(self):
         return int.from_bytes(self.file.read(1), byteorder='big', signed=True)
 
-    def readstr(self, len = None):
+    def readstr(self, len = None):      # Str has a 8-bit length prefix
         return self.readvar(len).decode('utf-8')
 
     def readvar(self, size = None):

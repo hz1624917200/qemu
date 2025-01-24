@@ -151,6 +151,22 @@ static bool qdev_class_has_alias(DeviceClass *dc)
 
 static void qdev_print_devinfo(DeviceClass *dc)
 {
+    // qemu_printf("%s,", object_class_get_name(OBJECT_CLASS(dc)));
+    // if (dc->bus_type) {
+    // qemu_printf("%s", dc->bus_type);
+    // }
+    // qemu_printf(",");
+    // if (qdev_class_has_alias(dc)) {
+    // qemu_printf("%s", qdev_class_get_alias(dc));
+    // }
+    // qemu_printf(",");
+    // if (!dc->user_creatable) {
+    // qemu_printf("0");
+    // }
+    // qemu_printf(",");
+    // if (dc->desc) {
+    // qemu_printf("%s", dc->desc);
+    // }
     qemu_printf("name \"%s\"", object_class_get_name(OBJECT_CLASS(dc)));
     if (dc->bus_type) {
         qemu_printf(", bus %s", dc->bus_type);

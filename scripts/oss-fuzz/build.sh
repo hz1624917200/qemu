@@ -82,6 +82,7 @@ if [ "$GITLAB_CI" != "true" ]; then
     # Build a second time to build the final binary with correct rpath
     ../configure --disable-werror --cc="$CC" --cxx="$CXX" --enable-fuzzing \
         --prefix="/opt/qemu-oss-fuzz" \
+        --enable-debug \
         --extra-cflags="$EXTRA_CFLAGS" --extra-ldflags="-Wl,-rpath,\$ORIGIN/lib" \
         --target-list="i386-softmmu"
     make "-j$(nproc)" qemu-fuzz-i386 V=1

@@ -13,6 +13,7 @@
 #include "qemu/osdep.h"
 
 #include "libqtest.h"
+#include "libqtest-single.h"
 #include "qapi/qmp/qdict.h"
 #include "qemu/module.h"
 #include "qemu/option.h"
@@ -22,6 +23,7 @@
 #include "crypto/tlscredspsk.h"
 #include "qapi/qmp/qlist.h"
 #include "ppc-util.h"
+#include "hw/clock.h"
 
 #include "migration-helpers.h"
 #include "tests/migration/migration-test.h"
@@ -101,6 +103,8 @@ static bool ufd_version_check(void)
 }
 
 #endif
+
+#define UNUSED_FUNCTION(fn) static void fn() {}
 
 static char *tmpfs;
 static char *bootpath;
@@ -380,6 +384,8 @@ typedef void * (*TestMigrateStartHook)(QTestState *from,
 typedef void (*TestMigrateFinishHook)(QTestState *from,
                                       QTestState *to,
                                       void *opaque);
+
+typedef void (*TestMigrateModifyHook)(void);
 
 typedef struct {
     /* Optional: fine tune start parameters */
@@ -688,7 +694,13 @@ static void file_check_offset_region(void)
     g_assert_cmpint(cpu_to_be64(*stream_start) >> 32, ==, QEMU_VM_FILE_MAGIC);
 }
 
-static void test_file_common(MigrateCommon *args, bool stop_src)
+typedef struct {
+    TestMigrateModifyHook modify;
+    TestMigrateStartHook pre_migration;
+    TestMigrateStartHook post_migration;
+} MigrateHook;
+
+static void test_file_common(MigrateCommon *args, bool stop_src, MigrateHook *hook)
 {
     QTestState *from, *to;
     void *data_hook = NULL;
@@ -719,6 +731,10 @@ static void test_file_common(MigrateCommon *args, bool stop_src)
         data_hook = args->start_hook(from, to);
     }
 
+    if (hook && hook->pre_migration) {
+        hook->pre_migration(from, to);
+    }
+
     migrate_ensure_converge(from);
     wait_for_serial("src_serial");
 
@@ -735,6 +751,11 @@ static void test_file_common(MigrateCommon *args, bool stop_src)
     migrate_qmp(from, to, args->connect_uri, NULL, "{}");
     wait_for_migration_complete(from);
 
+    // Modify the migration stream
+    if (hook && hook->modify) {
+        hook->modify();
+    }
+
     /*
      * We need to wait for the source to finish before starting the
      * destination.
@@ -749,6 +770,11 @@ static void test_file_common(MigrateCommon *args, bool stop_src)
 
     wait_for_serial("dest_serial");
 
+    // Destination started
+    if (hook && hook->post_migration) {
+        hook->post_migration(from, to);
+    }
+
     if (check_offset) {
         file_check_offset_region();
     }
@@ -761,96 +787,80 @@ finish:
     test_migrate_end(from, to, args->result == MIG_TEST_SUCCEED);
 }
 
-// static void *test_migrate_fd_start_hook(QTestState *from,
-//                                         QTestState *to)
-// {
-//     int ret;
-//     int pair[2];
-
-//     /* Create two connected sockets for migration */
-//     ret = qemu_socketpair(PF_LOCAL, SOCK_STREAM, 0, pair);
-//     g_assert_cmpint(ret, ==, 0);
-
-//     /* Send the 1st socket to the target */
-//     qtest_qmp_fds_assert_success(to, &pair[0], 1,
-//                                  "{ 'execute': 'getfd',"
-//                                  "  'arguments': { 'fdname': 'fd-mig' }}");
-//     close(pair[0]);
-
-//     /* Start incoming migration from the 1st socket */
-//     migrate_incoming_qmp(to, "fd:fd-mig", "{}");
-
-//     /* Send the 2nd socket to the target */
-//     qtest_qmp_fds_assert_success(from, &pair[1], 1,
-//                                  "{ 'execute': 'getfd',"
-//                                  "  'arguments': { 'fdname': 'fd-mig' }}");
-//     close(pair[1]);
-
-//     return NULL;
-// }
-
-static void test_migrate_fd_finish_hook(QTestState *from,
-                                        QTestState *to,
-                                        void *opaque)
+static void test_migrate_precopy_file(void)
 {
-    QDict *rsp;
-    const char *error_desc;
+    g_autofree char *uri = g_strdup_printf("file:%s/%s", tmpfs, 
+                                           FILE_TEST_FILENAME);
 
-    /* Test closing fds */
-    /* We assume, that QEMU removes named fd from its list,
-     * so this should fail */
-    rsp = qtest_qmp(from, "{ 'execute': 'closefd',"
-                          "  'arguments': { 'fdname': 'fd-mig' }}");
-    g_assert_true(qdict_haskey(rsp, "error"));
-    error_desc = qdict_get_str(qdict_get_qdict(rsp, "error"), "desc");
-    g_assert_cmpstr(error_desc, ==, "File descriptor named 'fd-mig' not found");
-    qobject_unref(rsp);
-
-    rsp = qtest_qmp(to, "{ 'execute': 'closefd',"
-                        "  'arguments': { 'fdname': 'fd-mig' }}");
-    g_assert_true(qdict_haskey(rsp, "error"));
-    error_desc = qdict_get_str(qdict_get_qdict(rsp, "error"), "desc");
-    g_assert_cmpstr(error_desc, ==, "File descriptor named 'fd-mig' not found");
-    qobject_unref(rsp);
-}
-
-static void *migrate_precopy_fd_file_start(QTestState *from, QTestState *to)
-{
-    g_autofree char *file = g_strdup_printf("%s/%s", tmpfs, FILE_TEST_FILENAME);
-    int src_flags = O_CREAT | O_RDWR;
-    int dst_flags = O_CREAT | O_RDWR;
-    int fds[2];
-
-    fds[0] = open(file, src_flags, 0660);
-    assert(fds[0] != -1);
-
-    fds[1] = open(file, dst_flags, 0660);
-    assert(fds[1] != -1);
-
-
-    qtest_qmp_fds_assert_success(to, &fds[0], 1,
-                                 "{ 'execute': 'getfd',"
-                                 "  'arguments': { 'fdname': 'fd-mig' }}");
-
-    qtest_qmp_fds_assert_success(from, &fds[1], 1,
-                                 "{ 'execute': 'getfd',"
-                                 "  'arguments': { 'fdname': 'fd-mig' }}");
-
-    close(fds[0]);
-    close(fds[1]);
-
-    return NULL;
-}
-
-static void test_migrate_precopy_fd_file(void)
-{
     MigrateCommon args = {
         .listen_uri = "defer",
-        .connect_uri = "fd:fd-mig",
-        .start_hook = migrate_precopy_fd_file_start,
-        .finish_hook = test_migrate_fd_finish_hook
+        .connect_uri = uri,
     };
-    test_file_common(&args, true);
+
+    MigrateHook hook = {
+
+    };
+
+    test_file_common(&args, true, &hook);
+}
+
+static void pl011_set_baudrate_division_by_zero(void)
+{
+    writeq(0x1000b024, 0xf8000000);
+}
+
+static void test_pl011(void) __attribute__((unused));
+static void test_pl011(void)    
+{
+    QTestState *s;
+
+    // Will control qemu instance inside the test
+    s = qtest_start("-m 128M -machine realview-pb-a8");
+    
+    // Start attack
+    pl011_set_baudrate_division_by_zero();
+    
+    qtest_quit(s);
+}
+
+static void pl011_migration_test(void) __attribute__((unused));
+static void pl011_migration_test(void)
+{
+    QTestState *s;
+    QTestState *d;
+    g_autofree char *url = g_strdup_printf("file:%s/%s", tmpfs, FILE_TEST_FILENAME);
+
+    s = qtest_start("-m 128M -machine realview-pb-a8");
+    d = qtest_start("-m 128M -machine realview-pb-a8 -incoming defer");     // Use defer to start incoming later
+
+    // Pre-migration setup
+    qtest_writeq(s, 0x1000b024, 0xf9000000);
+
+    migrate_ensure_converge(s);
+    migrate_qmp(s, d, url, NULL, "{}");
+    wait_for_migration_complete(s);
+
+    // TODO: modify migration stream
+    #define MIGRATION_MODIFY_OFFSET 0x1267d7
+    const long MIGRATION_MODIFY_VALUE = 0xf8;
+    g_autofree char *filepath = g_strdup_printf("%s/%s", tmpfs, FILE_TEST_FILENAME);
+
+    FILE *file = fopen(filepath, "r+b");
+    fseek(file, MIGRATION_MODIFY_OFFSET, SEEK_SET);
+    fwrite(&MIGRATION_MODIFY_VALUE, sizeof(MIGRATION_MODIFY_VALUE), 1, file);
+    fclose(file);
+
+    // Start incoming migration
+    migrate_incoming_qmp(d, url, "{}");
+    wait_for_migration_complete(d);
+
+    // Trigger the bug
+    qtest_writeq(d, 0x1000b028, 0);
+
+    qtest_quit(s);
+    qtest_quit(d);
+
+    cleanup(FILE_TEST_FILENAME);
 }
 
 int main(int argc, char **argv)
@@ -897,8 +907,13 @@ int main(int argc, char **argv)
 
     module_call_init(MODULE_INIT_QOM);
 
-    migration_test_add("/migration/precopy/fd/file",
-                    test_migrate_precopy_fd_file);
+    migration_test_add("/migration/precopy/file",
+                    test_migrate_precopy_file);
+
+    qtest_add_func("/migration/pl011/migration", pl011_migration_test);
+
+    // Test origin pl011 devision-by-zero bug
+    qtest_add_func("/migration/pl011/origin", test_pl011);
 
     // TODO: refer: migrate precopy file, use file: instead of fd:
 
@@ -906,7 +921,7 @@ int main(int argc, char **argv)
 
     g_assert_cmpint(ret, ==, 0);
 
-    bootfile_delete();
+    if (bootpath) bootfile_delete();
     ret = rmdir(tmpfs);
     if (ret != 0) {
         g_test_message("unable to rmdir: path (%s): %s",
