@@ -32,8 +32,9 @@ typedef enum QOSNodeType QOSNodeType;
 
 /* callback called when the walk path algorithm found a
  * valid path
+ * return 0 to continue the search, 1 to stop it
  */
-typedef void (*QOSTestCallback) (QOSGraphNode *path, int len);
+typedef int (*QOSTestCallback) (QOSGraphNode *path, int len);
 
 /* edge types*/
 enum QOSEdgeType {

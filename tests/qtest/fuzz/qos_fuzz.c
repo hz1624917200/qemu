@@ -93,7 +93,7 @@ static GString *qos_build_main_args(void)
  * is itself a callback, its a little annoying to add another argument/layer of
  * indirection
  */
-static void walk_path(QOSGraphNode *orig_path, int len)
+static int walk_path(QOSGraphNode *orig_path, int len)
 {
     QOSGraphNode *path;
     QOSGraphEdge *edge;
@@ -114,6 +114,8 @@ static void walk_path(QOSGraphNode *orig_path, int len)
 
     GString *cmd_line = g_string_new("");
     GString *cmd_line2 = g_string_new("");
+
+    int retval = 0;
 
     path = qos_graph_get_node(node_name); /* root */
     node_name = qos_graph_edge_get_dest(path->path_edge); /* machine name */
@@ -179,12 +181,14 @@ static void walk_path(QOSGraphNode *orig_path, int len)
         path_vec[0] = g_string_free(cmd_line, false);
 
         fuzz_path_vec = path_vec;
+        retval = 1;
     } else {
         g_string_free(cmd_line, true);
         g_free(path_vec);
     }
 
     g_free(path_str);
+    return retval;
 }
 
 static GString *qos_get_cmdline(FuzzTarget *t)

@@ -219,7 +219,7 @@ static void destroy_pathv(void *arg)
  * and the node name at position 1 (<arch>/<machine>)
  * ("x86_64/pc"), followed by the rest of the nodes.
  */
-static void walk_path(QOSGraphNode *orig_path, int len)
+static int walk_path(QOSGraphNode *orig_path, int len)
 {
     QOSGraphNode *path;
     QOSGraphEdge *edge;
@@ -309,6 +309,7 @@ static void walk_path(QOSGraphNode *orig_path, int len)
     }
 
     g_free(path_str);
+    return 0;
 }
 
 

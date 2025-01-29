@@ -166,31 +166,31 @@ char *object_property_help(const char *name, const char *type,
 {
     GString *str = g_string_new(NULL);
 
-    // g_string_printf(str, "%s,%s,", name, type);
-    // if (defval) {
-    //     g_autofree char *def_json = g_string_free(qobject_to_json(defval),
-    //                                               false);
-    //     g_string_append(str, def_json);
-    // }
-    // g_string_append(str, ",");
-    // if (description) {
-    //     g_string_append(str, description);
-    // }
-    g_string_append_printf(str, "  %s=<%s>", name, type);
-    if (description || defval) {
-        if (str->len < 24) {
-            g_string_append_printf(str, "%*s", 24 - (int)str->len, "");
-        }
-        g_string_append(str, " - ");
-    }
-    if (description) {
-        g_string_append(str, description);
-    }
+    g_string_printf(str, "%s,%s,", name, type);
     if (defval) {
         g_autofree char *def_json = g_string_free(qobject_to_json(defval),
                                                   false);
-        g_string_append_printf(str, " (default: %s)", def_json);
+        g_string_append(str, def_json);
     }
+    g_string_append(str, ",");
+    if (description) {
+        g_string_append(str, description);
+    }
+    // g_string_append_printf(str, "  %s=<%s>", name, type);
+    // if (description || defval) {
+    //     if (str->len < 24) {
+    //         g_string_append_printf(str, "%*s", 24 - (int)str->len, "");
+    //     }
+    //     g_string_append(str, " - ");
+    // }
+    // if (description) {
+    //     g_string_append(str, description);
+    // }
+    // if (defval) {
+    //     g_autofree char *def_json = g_string_free(qobject_to_json(defval),
+    //                                               false);
+    //     g_string_append_printf(str, " (default: %s)", def_json);
+    // }
 
     return g_string_free(str, false);
 }

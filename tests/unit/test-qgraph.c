@@ -140,9 +140,10 @@ static void check_test(const char *test, const char *interface)
     g_free(full_name);
 }
 
-static void count_each_test(QOSGraphNode *path, int len)
+static int count_each_test(QOSGraphNode *path, int len)
 {
     npath++;
+    return 0;
 }
 
 static void check_leaf_discovered(int n)

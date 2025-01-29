@@ -151,36 +151,41 @@ static bool qdev_class_has_alias(DeviceClass *dc)
 
 static void qdev_print_devinfo(DeviceClass *dc)
 {
-    // qemu_printf("%s,", object_class_get_name(OBJECT_CLASS(dc)));
-    // if (dc->bus_type) {
-    // qemu_printf("%s", dc->bus_type);
-    // }
-    // qemu_printf(",");
-    // if (qdev_class_has_alias(dc)) {
-    // qemu_printf("%s", qdev_class_get_alias(dc));
-    // }
-    // qemu_printf(",");
-    // if (!dc->user_creatable) {
-    // qemu_printf("0");
-    // }
-    // qemu_printf(",");
-    // if (dc->desc) {
-    // qemu_printf("%s", dc->desc);
-    // }
-    qemu_printf("name \"%s\"", object_class_get_name(OBJECT_CLASS(dc)));
+    qemu_printf("%s,", object_class_get_name(OBJECT_CLASS(dc)));
     if (dc->bus_type) {
-        qemu_printf(", bus %s", dc->bus_type);
+        qemu_printf("%s", dc->bus_type);
     }
+    qemu_printf(",");
     if (qdev_class_has_alias(dc)) {
-        qemu_printf(", alias \"%s\"", qdev_class_get_alias(dc));
+        qemu_printf("%s", qdev_class_get_alias(dc));
     }
-    if (dc->desc) {
-        qemu_printf(", desc \"%s\"", dc->desc);
-    }
+    qemu_printf(",");
     if (!dc->user_creatable) {
-        qemu_printf(", no-user");
+        qemu_printf("no-uc");
+    }
+    qemu_printf(",");
+    if (!dc->hotpluggable) {
+        qemu_printf("no-hp");
+    }
+    qemu_printf(",");
+    if (dc->desc) {
+        qemu_printf("%s", dc->desc);
     }
     qemu_printf("\n");
+    // qemu_printf("name \"%s\"", object_class_get_name(OBJECT_CLASS(dc)));
+    // if (dc->bus_type) {
+    //     qemu_printf(", bus %s", dc->bus_type);
+    // }
+    // if (qdev_class_has_alias(dc)) {
+    //     qemu_printf(", alias \"%s\"", qdev_class_get_alias(dc));
+    // }
+    // if (dc->desc) {
+    //     qemu_printf(", desc \"%s\"", dc->desc);
+    // }
+    // if (!dc->user_creatable) {
+    //     qemu_printf(", no-user");
+    // }
+    // qemu_printf("\n");
 }
 
 static void qdev_print_devinfos(bool show_no_user)

@@ -292,7 +292,7 @@ static void build_driver_cmd_line(QOSGraphNode *node)
 }
 
 /* qos_print_cb(): callback prints all path found by the DFS algorithm. */
-static void qos_print_cb(QOSGraphNode *path, int length)
+static int qos_print_cb(QOSGraphNode *path, int length)
 {
     #if QGRAPH_PRINT_DEBUG
         printf("%d elements\n", length);
@@ -319,6 +319,7 @@ static void qos_print_cb(QOSGraphNode *path, int length)
 
         printf("%s\n\n", path->name);
     #endif
+    return 0;
 }
 
 /* qos_push(): push a node @el and edge @e in the qos_node_stack */
@@ -414,7 +415,13 @@ static void qos_traverse_graph(QOSGraphNode *root, QOSTestCallback callback)
             if (v->type == QNODE_TEST) {
                 v->visited = false;
                 path = qos_reverse_path(s_el);
-                callback(path, s_el->length);
+                int res = callback(path, s_el->length);
+                if (res) {  /* stop the search */
+                    while (qos_node_tos > 0) {
+                        qos_pop();
+                    }
+                    return;
+                }
             }
         } else {
             QSLIST_FOREACH_SAFE(e, list, edge_list, next) {
