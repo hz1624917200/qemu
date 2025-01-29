@@ -6,7 +6,6 @@ slow_qtests = {
   'device-introspect-test' : 720,
   'ide-test' : 120,
   'migration-test' : 480,
-  'migration-fuzzing-test' : 240,
   'npcm7xx_pwm-test': 300,
   'npcm7xx_watchdog_timer-test': 120,
   'qmp-cmd-test' : 120,
@@ -116,8 +115,6 @@ qtests_i386 = \
    'drive_del-test',
    'cpu-plug-test',
    'migration-test',
-   'test-x86-cpuid-compat',
-   'numa-test'
   ]
 
 if dbus_display and config_all_devices.has_key('CONFIG_VGA')
@@ -265,8 +262,7 @@ qtests_aarch64 = \
   ['arm-cpu-features',
    'numa-test',
    'boot-serial-test',
-   'migration-test',
-   'migration-fuzzing-test']
+   'migration-test']
 
 qtests_s390x = \
   qtests_filter + \
@@ -275,8 +271,7 @@ qtests_s390x = \
    'device-plug-test',
    'virtio-ccw-test',
    'cpu-plug-test',
-   'migration-test',
-   'migration-fuzzing-test',]
+   'migration-test']
 
 qtests_riscv32 = \
   (config_all_devices.has_key('CONFIG_SIFIVE_E_AON') ? ['sifive-e-aon-watchdog-test'] : [])

@@ -2,7 +2,7 @@ if not get_option('fuzzing')
   subdir_done()
 endif
 
-specific_fuzz_ss.add(files('fuzz.c', 'qos_fuzz.c',
+specific_fuzz_ss.add(files('fuzz.c', 'qos_fuzz.c', 'qos_prop_fuzz.c',
                            'qtest_wrappers.c'), qos)
 
 # Targets

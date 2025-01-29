@@ -1,6 +1,5 @@
 /GNUmakefile
 /build/
-/build-oss-fuzz/
 /build-fuzz/
 /.cache/
 /.vscode/
