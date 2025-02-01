@@ -28,9 +28,10 @@
 #include "tests/qtest/libqos/qgraph_internal.h"
 #include "tests/qtest/libqos/qos_external.h"
 
-#include "fuzz.h"
-#include "qos_fuzz.h"
+#include "../fuzz.h"
+#include "../qos_fuzz.h"
 #include "qos_prop_fuzz.h"
+#include "utils.h"
 
 #include "qapi/qapi-commands-machine.h"
 #include "qapi/qapi-commands-qom.h"
@@ -39,23 +40,11 @@
 static const char *fuzz_target_name;
 static char **fuzz_path_vec;
 
-static void qos_set_machines_devices_available(void)
-{
-    MachineInfoList *mach_info;
-    ObjectTypeInfoList *type_info;
-
-    mach_info = qmp_query_machines(false, false, &error_abort);
-    machines_apply_to_node(mach_info);
-    qapi_free_MachineInfoList(mach_info);
-
-    type_info = qmp_qom_list_types("device", true, true, &error_abort);
-    types_apply_to_node(type_info);
-    qapi_free_ObjectTypeInfoList(type_info);
-}
 
 static char **current_path;
 
-static GString *qos_build_main_args(void)
+// TODO: edit this
+static GString *qos_prop_build_main_args(void)
 {
     char **path = fuzz_path_vec;
     QOSGraphNode *test_node;
@@ -86,6 +75,7 @@ static GString *qos_build_main_args(void)
  * is itself a callback, its a little annoying to add another argument/layer of
  * indirection
  */
+// TODO: edit cmd arg construction and device param editing
 static int walk_path(QOSGraphNode *orig_path, int len)
 {
     QOSGraphNode *path;
@@ -193,7 +183,7 @@ static GString *qos_prop_get_cmdline(FuzzTarget *t)
     fuzz_target_name = t->name;
     qos_set_machines_devices_available();
     qos_graph_foreach_test_path(walk_path);
-    return qos_build_main_args();
+    return qos_prop_build_main_args();
 }
 
 void fuzz_add_qos_prop_target(
@@ -206,3 +196,26 @@ void fuzz_add_qos_prop_target(
     fuzz_opts->get_init_cmdline = qos_prop_get_cmdline;
     fuzz_add_target(fuzz_opts);
 }
+
+static void prop_fuzz(QTestState *s,
+        const unsigned char *Data, size_t Size)
+{
+    
+}
+
+
+// Test case: e1000 network device
+static void test_e1000_register_nodes(void)
+{
+    fuzz_add_qos_prop_target(&(FuzzTarget){
+            .name = "e1000-prop-fuzz",
+            .description = "Fuzz the e1000 network device properties",
+            .pre_fuzz = qos_init_path,
+            .fuzz = prop_fuzz,},
+            "e1000",
+            &(QOSGraphTestOptions){.before = net_test_setup_socket}
+            );
+
+}
+
+libqos_init(test_e1000_register_nodes);

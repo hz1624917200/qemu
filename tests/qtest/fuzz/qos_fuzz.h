@@ -30,4 +30,6 @@ void fuzz_add_qos_target(
 
 void qos_init_path(QTestState *);
 
+void qos_set_machines_devices_available(void);
+
 #endif

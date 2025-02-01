@@ -41,7 +41,7 @@ QGuestAllocator *fuzz_qos_alloc;
 static const char *fuzz_target_name;
 static char **fuzz_path_vec;
 
-static void qos_set_machines_devices_available(void)
+void qos_set_machines_devices_available(void)
 {
     MachineInfoList *mach_info;
     ObjectTypeInfoList *type_info;
