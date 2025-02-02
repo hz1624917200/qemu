@@ -87,21 +87,32 @@ static int walk_path(QOSGraphNode *orig_path, int len)
      */
     QOSEdgeType etype = QEDGE_CONSUMED_BY;
 
+    char *after_cmd, *before_cmd, *after_device;
+    char *node_name = orig_path->name, *path_str;
+
+    /* Check that this is the test we care about: */
+    char* edge_name;
+    path = qos_graph_get_node(node_name); /* root */
+    while (path->path_edge) {
+        edge_name = qos_graph_edge_get_name(path->path_edge);
+        node_name = qos_graph_edge_get_dest(path->path_edge);
+        path = qos_graph_get_node(node_name);
+    }
+    char* test_name = strrchr(edge_name, '/') + 1;
+    if (strcmp(test_name, fuzz_target_name) != 0) {
+        return 0;
+    }
+
+    path = qos_graph_get_node(orig_path->name); /* root */
+    node_name = qos_graph_edge_get_dest(path->path_edge); /* machine name */
+
     /* twice QOS_PATH_MAX_ELEMENT_SIZE since each edge can have its arg */
     char **path_vec = g_new0(char *, (QOS_PATH_MAX_ELEMENT_SIZE * 2));
     int path_vec_size = 0;
 
-    char *after_cmd, *before_cmd, *after_device;
-    GString *after_device_str = g_string_new("");
-    char *node_name = orig_path->name, *path_str;
-
     GString *cmd_line = g_string_new("");
     GString *cmd_line2 = g_string_new("");
-
-    int retval = 0;
-
-    path = qos_graph_get_node(node_name); /* root */
-    node_name = qos_graph_edge_get_dest(path->path_edge); /* machine name */
+    GString *after_device_str = g_string_new("");
 
     path_vec[path_vec_size++] = node_name;
     path_vec[path_vec_size++] = qos_get_machine_type(node_name);
@@ -153,25 +164,17 @@ static int walk_path(QOSGraphNode *orig_path, int len)
      */
     path_str = g_strjoinv("/", path_vec + 1);
 
-    /* Check that this is the test we care about: */
-    char *test_name = strrchr(path_str, '/') + 1;
-    if (strcmp(test_name, fuzz_target_name) == 0) {
-        /*
-         * put arch/machine in position 1 so run_one_test can do its work
-         * and add the command line at position 0.
-         */
-        path_vec[1] = path_vec[0];
-        path_vec[0] = g_string_free(cmd_line, false);
+    /*
+    * put arch/machine in position 1 so run_one_test can do its work
+    * and add the command line at position 0.
+    */
+    path_vec[1] = path_vec[0];
+    path_vec[0] = g_string_free(cmd_line, false);
 
-        fuzz_path_vec = path_vec;
-        retval = 1;
-    } else {
-        g_string_free(cmd_line, true);
-        g_free(path_vec);
-    }
+    fuzz_path_vec = path_vec;
 
     g_free(path_str);
-    return retval;
+    return 1;
 }
 
 static GString *qos_prop_get_cmdline(FuzzTarget *t)
@@ -208,11 +211,11 @@ static void prop_fuzz(QTestState *s,
 static void test_e1000_register_nodes(void)
 {
     fuzz_add_qos_prop_target(&(FuzzTarget){
-            .name = "e1000-prop-fuzz",
-            .description = "Fuzz the e1000 network device properties",
-            .pre_fuzz = qos_init_path,
+            .name = "e1000e-prop-fuzz",
+            .description = "Fuzz the e1000e network device properties",
+            .pre_fuzz = &qos_init_path,
             .fuzz = prop_fuzz,},
-            "e1000",
+            "e1000e",
             &(QOSGraphTestOptions){.before = net_test_setup_socket}
             );
 
