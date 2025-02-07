@@ -91,13 +91,21 @@ static QGuestAllocator *get_machine_allocator(QOSGraphObject *obj)
  */
 void *allocate_objects(QTestState *qts, char **path, QGuestAllocator **p_alloc)
 {
-    int current = 0;
+    int current = 0, path_len = 0;
     QGuestAllocator *alloc;
     QOSGraphObject *parent = NULL;
     QOSGraphEdge *edge;
     QOSGraphNode *node;
     void *edge_arg;
     void *obj;
+
+	// Property test mode
+    bool prop_test __attribute__((unused)) = false;
+    // Examine the path to determine if it is a prop test
+    while (path[++path_len]);
+    if (g_strrstr(path[path_len - 1], "prop") != NULL) {
+        prop_test = true;
+    }
 
     node = qos_graph_get_node(path[current]);
     g_assert(node->type == QNODE_MACHINE);
@@ -132,6 +140,9 @@ void *allocate_objects(QTestState *qts, char **path, QGuestAllocator **p_alloc)
             break;
 
         case QEDGE_CONSUMED_BY:
+            if (prop_test && current == path_len - 2) {
+                break;  // We will initialize the under-testing device after plug-in
+            }
             edge_arg = qos_graph_edge_get_arg(edge);
             obj = qos_driver_new(node, obj, alloc, edge_arg);
             qos_object_queue_destroy(obj);

@@ -184,6 +184,8 @@ static void *e1000e_pci_create(void *pci_bus, QGuestAllocator *alloc,
 
     qpci_device_foreach(bus, address->vendor_id, address->device_id,
                         e1000e_foreach_callback, &d->pci_dev);
+    
+    g_assert(d->pci_dev.bus != NULL);
 
     /* Map BAR0 (mac registers) */
     d->mac_regs = qpci_iomap(&d->pci_dev, 0, NULL);

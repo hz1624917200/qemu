@@ -20,6 +20,7 @@ int qos_fuzz(const unsigned char *Data, size_t Size);
 void qos_setup(void);
 
 extern void *fuzz_qos_obj;
+extern char **current_path;
 extern QGuestAllocator *fuzz_qos_alloc;
 
 void fuzz_add_qos_target(

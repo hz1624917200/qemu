@@ -40,8 +40,10 @@
 static const char *fuzz_target_name;
 static char **fuzz_path_vec;
 
-
-static char **current_path;
+// For device property
+static char* fuzz_device_cmdline;
+static char* fuzz_device_extraopt;
+static void* fuzz_edge_arg;
 
 // TODO: edit this
 static GString *qos_prop_build_main_args(void)
@@ -75,7 +77,6 @@ static GString *qos_prop_build_main_args(void)
  * is itself a callback, its a little annoying to add another argument/layer of
  * indirection
  */
-// TODO: edit cmd arg construction and device param editing
 static int walk_path(QOSGraphNode *orig_path, int len)
 {
     QOSGraphNode *path;
@@ -117,7 +118,7 @@ static int walk_path(QOSGraphNode *orig_path, int len)
     path_vec[path_vec_size++] = node_name;
     path_vec[path_vec_size++] = qos_get_machine_type(node_name);
 
-    for (;;) {
+    for (int depth = 2; ; depth++) {
         path = qos_graph_get_node(node_name);
         if (!path->path_edge) {
             break;
@@ -127,8 +128,14 @@ static int walk_path(QOSGraphNode *orig_path, int len)
 
         /* append node command line + previous edge command line */
         if (path->command_line && etype == QEDGE_CONSUMED_BY) {
-            g_string_append(cmd_line, path->command_line);
-            g_string_append(cmd_line, after_device_str->str);
+            if (depth == len) { // current node is the device under test
+                fuzz_device_cmdline = g_strdup(path->command_line);
+                fuzz_device_extraopt = g_strdup(after_device_str->str);
+                fuzz_edge_arg = qos_graph_edge_get_arg(edge);
+            } else {
+                g_string_append(cmd_line, path->command_line);
+                g_string_append(cmd_line, after_device_str->str);
+            }
             g_string_truncate(after_device_str, 0);
         }
 
@@ -157,6 +164,17 @@ static int walk_path(QOSGraphNode *orig_path, int len)
 
     g_string_append(cmd_line, cmd_line2->str);
     g_string_free(cmd_line2, true);
+
+    // Debug print
+    // printf("%s: %s\n", test_name, cmd_line->str);
+    // if (fuzz_device_cmdline) {
+    //     printf("%s\n%s\n", fuzz_device_cmdline, fuzz_device_extraopt);
+    //     g_free(fuzz_device_cmdline);
+    //     g_free(fuzz_device_extraopt);
+    //     fuzz_device_cmdline = fuzz_device_extraopt = NULL;
+    // } else {
+    //     printf("null\n");
+    // }
 
     /*
      * here position 0 has <arch>/<machine>, position 1 has <machine>.
@@ -203,7 +221,7 @@ void fuzz_add_qos_prop_target(
 static void prop_fuzz(QTestState *s,
         const unsigned char *Data, size_t Size)
 {
-    
+    g_assert(false);    // TODO
 }
 
 
@@ -218,7 +236,14 @@ static void test_e1000_register_nodes(void)
             "e1000e",
             &(QOSGraphTestOptions){.before = net_test_setup_socket}
             );
-
+    fuzz_add_qos_prop_target(&(FuzzTarget){
+            .name = "virtio-net-pci-prop-fuzz",
+            .description = "Fuzz the virtio-net network device properties",
+            .pre_fuzz = &qos_init_path,
+            .fuzz = prop_fuzz,},
+            "virtio-net-pci",
+            &(QOSGraphTestOptions){.before = net_test_setup_socket}
+            );
 }
 
 libqos_init(test_e1000_register_nodes);

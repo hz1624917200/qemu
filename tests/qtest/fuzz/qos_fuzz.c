@@ -55,7 +55,7 @@ void qos_set_machines_devices_available(void)
     qapi_free_ObjectTypeInfoList(type_info);
 }
 
-static char **current_path;
+char **current_path;
 
 void *qos_allocate_objects(QTestState *qts, QGuestAllocator **p_alloc)
 {
