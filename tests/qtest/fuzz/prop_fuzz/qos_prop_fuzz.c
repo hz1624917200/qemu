@@ -45,7 +45,14 @@ static char* fuzz_device_cmdline;
 static char* fuzz_device_extraopt;
 static void* fuzz_edge_arg;
 
-// TODO: edit this
+typedef struct {
+    char *name;
+    PropType type;
+} FuzzProp;
+
+static FuzzProp *prop_list;
+static int prop_list_size;
+
 static GString *qos_prop_build_main_args(void)
 {
     char **path = fuzz_path_vec;
@@ -195,6 +202,32 @@ static int walk_path(QOSGraphNode *orig_path, int len)
     return 1;
 }
 
+static void init_prop_list(void)
+{
+    char *prop_name_file;
+    prop_name_file = (char *)g_getenv("PROP_FILE");
+    if (!prop_name_file) {  // set to default value
+        prop_name_file = g_strdup("prop_list.txt");
+    }
+
+    FILE *prop_file = fopen(prop_name_file, "r");
+    if (!prop_file) {
+        fprintf(stderr, "Error opening file %s\n", prop_name_file);
+        g_free(prop_name_file);
+        abort();
+    }
+
+    fscanf(prop_file, "%d\n", &prop_list_size);
+    prop_list = g_new0(FuzzProp, prop_list_size);
+    for (int i = 0; i < prop_list_size; i++) {
+        prop_list[i].name = g_new0(char, 64);
+        fscanf(prop_file, "%63s %d\n", prop_list[i].name, &prop_list[i].type);
+    }
+
+    fclose(prop_file);
+    g_free(prop_name_file);
+}
+
 static GString *qos_prop_get_cmdline(FuzzTarget *t)
 {
     /*
@@ -204,6 +237,7 @@ static GString *qos_prop_get_cmdline(FuzzTarget *t)
     fuzz_target_name = t->name;
     qos_set_machines_devices_available();
     qos_graph_foreach_test_path(walk_path);
+    init_prop_list();
     return qos_prop_build_main_args();
 }
 
