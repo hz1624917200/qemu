@@ -29,4 +29,6 @@ void machines_apply_to_node(MachineInfoList *mach_info);
 void types_apply_to_node(ObjectTypeInfoList *type_info);
 void *allocate_objects(QTestState *qts, char **path, QGuestAllocator **p_alloc);
 
+extern void *fuzz_device_parent;
+
 #endif

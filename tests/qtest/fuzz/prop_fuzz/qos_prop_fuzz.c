@@ -21,6 +21,7 @@
 #include "qapi/error.h"
 #include "exec/memory.h"
 #include "qemu/main-loop.h"
+#include "monitor/qdev.h"
 
 #include "tests/qtest/libqtest.h"
 #include "tests/qtest/libqos/libqos-malloc.h"
@@ -41,8 +42,9 @@ static const char *fuzz_target_name;
 static char **fuzz_path_vec;
 
 // For device property
+static char* fuzz_driver;
 static char* fuzz_device_cmdline;
-static char* fuzz_device_extraopt;
+static char* fuzz_device_extraopt;      // TODO: change to qdict
 static void* fuzz_edge_arg;
 
 typedef struct {
@@ -136,6 +138,7 @@ static int walk_path(QOSGraphNode *orig_path, int len)
         /* append node command line + previous edge command line */
         if (path->command_line && etype == QEDGE_CONSUMED_BY) {
             if (depth == len) { // current node is the device under test
+                fuzz_driver = g_strdup(path->name);
                 fuzz_device_cmdline = g_strdup(path->command_line);
                 fuzz_device_extraopt = g_strdup(after_device_str->str);
                 fuzz_edge_arg = qos_graph_edge_get_arg(edge);
@@ -255,7 +258,85 @@ void fuzz_add_qos_prop_target(
 static void prop_fuzz(QTestState *s,
         const unsigned char *Data, size_t Size)
 {
-    g_assert(false);    // TODO
+    printf("Data size: %ld\n", Size);
+    for (size_t i = 0; i < Size; i++) {
+        printf("%02x ", Data[i]);
+        if ((i + 1) % 16 == 0) {
+            printf("\n");
+        }
+    }
+    if (Size % 16 != 0) {
+        printf("\n");
+    }
+
+    // Create Property QDict for qdev_device_add
+    QDict *qdict = qdict_new();
+    qdict_put_str(qdict, "driver", fuzz_driver);
+    // qdict_put_str(qdict, "id", "fuzz0");
+
+    // add device properties
+    for (int i = 0; i < prop_list_size && Size; i++) {
+        switch (prop_list[i].type) {
+            case PROP_TYPE_BOOL:
+                qdict_put_bool(qdict, prop_list[i].name, *Data % 2);
+                Data++;
+                Size--;
+                break;
+            case PROP_TYPE_INT32:
+                qdict_put_int(qdict, prop_list[i].name, *(int32_t *)Data);
+                Data += sizeof(int32_t);
+                Size -= sizeof(int32_t);
+                break;
+            case PROP_TYPE_UINT32:
+                qdict_put_int(qdict, prop_list[i].name, *(uint32_t *)Data);
+                Data += sizeof(uint32_t);
+                Size -= sizeof(uint32_t);
+                break;
+            case PROP_TYPE_INT8:
+                qdict_put_int(qdict, prop_list[i].name, *(int8_t *)Data);
+                Data += sizeof(int8_t);
+                Size -= sizeof(int8_t);
+                break;
+            case PROP_TYPE_UINT8:
+                qdict_put_int(qdict, prop_list[i].name, *(uint8_t *)Data);
+                Data += sizeof(uint8_t);
+                Size -= sizeof(uint8_t);
+                break;
+            case PROP_TYPE_INT16:
+                qdict_put_int(qdict, prop_list[i].name, *(int16_t *)Data);
+                Data += sizeof(int16_t);
+                Size -= sizeof(int16_t);
+                break;
+            case PROP_TYPE_UINT16:
+                qdict_put_int(qdict, prop_list[i].name, *(uint16_t *)Data);
+                Data += sizeof(uint16_t);
+                Size -= sizeof(uint16_t);
+                break;
+        }
+    }
+
+    // TODO: parse the extra options and add them to the qdict
+
+    DeviceState *dev = qdev_device_add_from_qdict(qdict, true, &error_fatal);
+    if (!dev) {     // sam as `qmp_device_add`
+        drain_call_rcu();
+        goto clean;
+    }
+
+    // continue initialization and tests that not completed
+    QOSGraphNode *node = qos_graph_get_node(fuzz_driver);
+    void *obj = qos_driver_new(node, fuzz_device_parent, fuzz_qos_alloc, fuzz_edge_arg);
+    qos_object_start_hw(obj);
+    qos_object_destroy(obj);
+
+    // do some clean 
+clean:
+    // currently asynchoronous unplug request not handled
+    // so we need to use unrealize manually
+    // qdev_unplug(dev, error_abort);  
+    qdev_unrealize(dev);
+    object_unref(OBJECT(dev));
+    qdict_unref(qdict);
 }
 
 
@@ -278,6 +359,7 @@ static void test_e1000_register_nodes(void)
             "virtio-net-pci",
             &(QOSGraphTestOptions){.before = net_test_setup_socket}
             );
+    
 }
 
 libqos_init(test_e1000_register_nodes);

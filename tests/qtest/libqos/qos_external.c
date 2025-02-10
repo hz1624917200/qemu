@@ -29,6 +29,8 @@
 #include "qgraph_internal.h"
 #include "qos_external.h"
 
+void *fuzz_device_parent;
+
 static void machine_apply_to_node(const char *name)
 {
     char *machine_name = g_strconcat(qtest_get_arch(), "/", name, NULL);
@@ -141,6 +143,7 @@ void *allocate_objects(QTestState *qts, char **path, QGuestAllocator **p_alloc)
 
         case QEDGE_CONSUMED_BY:
             if (prop_test && current == path_len - 2) {
+                fuzz_device_parent = obj;
                 break;  // We will initialize the under-testing device after plug-in
             }
             edge_arg = qos_graph_edge_get_arg(edge);
