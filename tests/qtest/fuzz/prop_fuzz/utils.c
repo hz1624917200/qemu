@@ -13,3 +13,38 @@ void *net_test_setup_socket(GString *cmd_line, void *arg)
                            sockfds[1]);
     return arg;
 }
+
+void qdict_put_bool_buf(QDict *qdict, const char *key, const unsigned char *value)
+{
+	qdict_put_bool(qdict, key, *(bool *)value);
+}
+
+void qdict_put_int8_buf(QDict *qdict, const char *key, const unsigned char *value)
+{
+	qdict_put_int(qdict, key, *(int8_t *)value);
+}
+
+void qdict_put_int16_buf(QDict *qdict, const char *key, const unsigned char *value)
+{
+	qdict_put_int(qdict, key, *(int16_t *)value);
+}
+
+void qdict_put_int32_buf(QDict *qdict, const char *key, const unsigned char *value)
+{
+	qdict_put_int(qdict, key, *(int32_t *)value);
+}
+
+void qdict_put_uint8_buf(QDict *qdict, const char *key, const unsigned char *value)
+{
+    qdict_put_int(qdict, key, *(uint8_t *)value);
+}
+
+void qdict_put_uint16_buf(QDict *qdict, const char *key, const unsigned char *value)
+{
+    qdict_put_int(qdict, key, *(uint16_t *)value);
+}
+
+void qdict_put_uint32_buf(QDict *qdict, const char *key, const unsigned char *value)
+{
+    qdict_put_int(qdict, key, *(uint32_t *)value);
+}

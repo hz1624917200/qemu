@@ -41,6 +41,8 @@
 static const char *fuzz_target_name;
 static char **fuzz_path_vec;
 
+static bool verbose = false;
+
 // For device property
 static char* fuzz_driver;
 static char* fuzz_device_cmdline;
@@ -49,11 +51,38 @@ static void* fuzz_edge_arg;
 
 typedef struct {
     char *name;
-    PropType type;
+    PropTypeEnum type;
 } FuzzProp;
 
 static FuzzProp *prop_list;
 static int prop_list_size;
+
+static PropType prop_type[] = {
+    [PROP_TYPE_BOOL] = {
+        .size = sizeof(bool),
+        .qdict_put_handler = qdict_put_bool_buf,
+    },
+    [PROP_TYPE_INT8] = {
+        .size = sizeof(int8_t),
+        .qdict_put_handler = qdict_put_int8_buf,
+    },
+    [PROP_TYPE_INT16] = {
+        .size = sizeof(int16_t),
+        .qdict_put_handler = qdict_put_int16_buf,
+    },
+    [PROP_TYPE_INT32] = {
+        .size = sizeof(int32_t),
+        .qdict_put_handler = qdict_put_int32_buf,
+    },
+
+};
+
+#define qdict_put_generic(qdict, key, value) _Generic((value), \
+    bool: qdict_put_bool, \
+    int8_t: qdict_put_int, \
+    int16_t: qdict_put_int, \
+    int32_t: qdict_put_int) \
+    (qdict, key, value)
 
 static GString *qos_prop_build_main_args(void)
 {
@@ -200,6 +229,10 @@ static int walk_path(QOSGraphNode *orig_path, int len)
     path_vec[0] = g_string_free(cmd_line, false);
 
     fuzz_path_vec = path_vec;
+    
+    if (verbose) {
+        printf("Starting with cmdline: %s\n", path_vec[0]);
+    }
 
     g_free(path_str);
     return 1;
@@ -207,16 +240,15 @@ static int walk_path(QOSGraphNode *orig_path, int len)
 
 static void init_prop_list(void)
 {
-    char *prop_name_file;
-    prop_name_file = (char *)g_getenv("PROP_FILE");
+    const char *prop_name_file;
+    prop_name_file = (const char *)g_getenv("PROP_FILE");
     if (!prop_name_file) {  // set to default value
-        prop_name_file = g_strdup("prop_list.txt");
+        prop_name_file = "prop_list.txt";
     }
 
     FILE *prop_file = fopen(prop_name_file, "r");
     if (!prop_file) {
         fprintf(stderr, "Error opening file %s\n", prop_name_file);
-        g_free(prop_name_file);
         abort();
     }
 
@@ -228,7 +260,6 @@ static void init_prop_list(void)
     }
 
     fclose(prop_file);
-    g_free(prop_name_file);
 }
 
 static GString *qos_prop_get_cmdline(FuzzTarget *t)
@@ -258,17 +289,22 @@ void fuzz_add_qos_prop_target(
 static void prop_fuzz(QTestState *s,
         const unsigned char *Data, size_t Size)
 {
-    printf("Data size: %ld\n", Size);
-    for (size_t i = 0; i < Size; i++) {
-        printf("%02x ", Data[i]);
-        if ((i + 1) % 16 == 0) {
+    // for debug
+    // Size = 3;
+    // Data = (unsigned char*)"\xac\xac\xd5";
+
+    if (verbose) {
+        printf("Data size: %ld\n", Size);
+        for (size_t i = 0; i < Size; i++) {
+            printf("%02x ", Data[i]);
+            if ((i + 1) % 16 == 0) {
+                printf("\n");
+            }
+        }
+        if (Size % 16 != 0) {
             printf("\n");
         }
     }
-    if (Size % 16 != 0) {
-        printf("\n");
-    }
-
     // Create Property QDict for qdev_device_add
     QDict *qdict = qdict_new();
     qdict_put_str(qdict, "driver", fuzz_driver);
@@ -276,66 +312,50 @@ static void prop_fuzz(QTestState *s,
 
     // add device properties
     for (int i = 0; i < prop_list_size && Size; i++) {
-        switch (prop_list[i].type) {
-            case PROP_TYPE_BOOL:
-                qdict_put_bool(qdict, prop_list[i].name, *Data % 2);
-                Data++;
-                Size--;
-                break;
-            case PROP_TYPE_INT32:
-                qdict_put_int(qdict, prop_list[i].name, *(int32_t *)Data);
-                Data += sizeof(int32_t);
-                Size -= sizeof(int32_t);
-                break;
-            case PROP_TYPE_UINT32:
-                qdict_put_int(qdict, prop_list[i].name, *(uint32_t *)Data);
-                Data += sizeof(uint32_t);
-                Size -= sizeof(uint32_t);
-                break;
-            case PROP_TYPE_INT8:
-                qdict_put_int(qdict, prop_list[i].name, *(int8_t *)Data);
-                Data += sizeof(int8_t);
-                Size -= sizeof(int8_t);
-                break;
-            case PROP_TYPE_UINT8:
-                qdict_put_int(qdict, prop_list[i].name, *(uint8_t *)Data);
-                Data += sizeof(uint8_t);
-                Size -= sizeof(uint8_t);
-                break;
-            case PROP_TYPE_INT16:
-                qdict_put_int(qdict, prop_list[i].name, *(int16_t *)Data);
-                Data += sizeof(int16_t);
-                Size -= sizeof(int16_t);
-                break;
-            case PROP_TYPE_UINT16:
-                qdict_put_int(qdict, prop_list[i].name, *(uint16_t *)Data);
-                Data += sizeof(uint16_t);
-                Size -= sizeof(uint16_t);
-                break;
+        int type_id = prop_list[i].type;
+        if (type_id > PROP_TYPE_UNSIGNED) {
+            type_id -= PROP_TYPE_UNSIGNED;
+
         }
+        if (Size < prop_type[type_id].size) {
+            continue;
+        }
+        prop_type[type_id].qdict_put_handler(qdict, prop_list[i].name, Data);
+        Data += prop_type[type_id].size;
+        Size -= prop_type[type_id].size;
     }
 
     // TODO: parse the extra options and add them to the qdict
 
-    DeviceState *dev = qdev_device_add_from_qdict(qdict, true, &error_fatal);
+    Error *err = NULL;
+    DeviceState *dev = qdev_device_add_from_qdict(qdict, true, &err);
+    if (err) {
+        error_report_err(err);
+    }
     if (!dev) {     // sam as `qmp_device_add`
-        drain_call_rcu();
         goto clean;
     }
 
-    // continue initialization and tests that not completed
-    QOSGraphNode *node = qos_graph_get_node(fuzz_driver);
-    void *obj = qos_driver_new(node, fuzz_device_parent, fuzz_qos_alloc, fuzz_edge_arg);
-    qos_object_start_hw(obj);
-    qos_object_destroy(obj);
+    // // continue initialization and tests that not completed
+    // QOSGraphNode *node = qos_graph_get_node(fuzz_driver);
+    // void *obj = qos_driver_new(node, fuzz_device_parent, fuzz_qos_alloc, fuzz_edge_arg);
+    // qos_object_start_hw(obj);
+    // qos_object_destroy(obj);
 
     // do some clean 
-clean:
+
     // currently asynchoronous unplug request not handled
     // so we need to use unrealize manually
     // qdev_unplug(dev, error_abort);  
-    qdev_unrealize(dev);
-    object_unref(OBJECT(dev));
+    if (dev) {
+        qdev_unrealize(dev);
+        object_unparent(OBJECT(dev));
+        // drain_call_rcu();
+        // printf("obj refcnt: %d\n", OBJECT(dev)->ref);
+        object_unref(OBJECT(dev));
+    }
+clean:
+    drain_call_rcu();   // wait for RCU to recycle the objects
     qdict_unref(qdict);
 }
 
@@ -343,6 +363,10 @@ clean:
 // Test case: e1000 network device
 static void test_e1000_register_nodes(void)
 {
+    if (g_getenv("VERBOSE")) {
+        verbose = true;
+    }
+
     fuzz_add_qos_prop_target(&(FuzzTarget){
             .name = "e1000e-prop-fuzz",
             .description = "Fuzz the e1000e network device properties",
