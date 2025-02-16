@@ -6,6 +6,8 @@
 
 void *net_test_setup_socket(GString *cmd_line, void *arg);
 
+QDict *parse_opts(GString *opt_str);
+
 void qdict_put_bool_buf(QDict *qdict, const char *key, const unsigned char *value);
 void qdict_put_int8_buf(QDict *qdict, const char *key, const unsigned char *value);
 void qdict_put_int16_buf(QDict *qdict, const char *key, const unsigned char *value);

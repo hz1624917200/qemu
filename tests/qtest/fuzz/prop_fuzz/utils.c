@@ -3,6 +3,29 @@
 static int sockfds[2];
 static bool sockfds_initialized;
 
+// set opts to a new QDict
+QDict *parse_opts(GString *opt_str)
+{
+    char *opt = g_strdup(opt_str->str);
+    char *saveptr;
+    char *token = strtok_r(opt, ",", &saveptr);
+    QDict *opt_dict = qdict_new();
+
+    while (token) {
+        char *key = g_strdup(token);
+        char *value = strchr(key, '=');
+        if (value) {
+            *value = '\0';
+            value++;
+            qdict_put_str(opt_dict, key, value);
+        }
+        g_free(key);
+        token = strtok_r(NULL, ",", &saveptr);
+    }
+    g_free(opt);
+    return opt_dict;
+}
+
 void *net_test_setup_socket(GString *cmd_line, void *arg)
 {
 	int ret = socketpair(PF_UNIX, SOCK_STREAM, 0, sockfds);

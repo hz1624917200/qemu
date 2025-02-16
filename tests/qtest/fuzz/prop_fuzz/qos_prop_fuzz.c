@@ -46,7 +46,7 @@ static bool verbose = false;
 // For device property
 static char* fuzz_driver;
 static char* fuzz_device_cmdline;
-static char* fuzz_device_extraopt;      // TODO: change to qdict
+static QDict* fuzz_device_extraopt;
 static void* fuzz_edge_arg;
 
 typedef struct {
@@ -107,6 +107,7 @@ static GString *qos_prop_build_main_args(void)
     /* Prepend the arguments that we need */
     g_string_prepend(cmd_line,
             TARGET_NAME " -display none -machine accel=qtest -m 64 ");
+    printf("Starting with cmdline: %s\n", cmd_line->str);
     return cmd_line;
 }
 
@@ -169,7 +170,7 @@ static int walk_path(QOSGraphNode *orig_path, int len)
             if (depth == len) { // current node is the device under test
                 fuzz_driver = g_strdup(path->name);
                 fuzz_device_cmdline = g_strdup(path->command_line);
-                fuzz_device_extraopt = g_strdup(after_device_str->str);
+                fuzz_device_extraopt = parse_opts(after_device_str);
                 fuzz_edge_arg = qos_graph_edge_get_arg(edge);
             } else {
                 g_string_append(cmd_line, path->command_line);
@@ -306,7 +307,7 @@ static void prop_fuzz(QTestState *s,
         }
     }
     // Create Property QDict for qdev_device_add
-    QDict *qdict = qdict_new();
+    QDict *qdict = qdict_clone_shallow(fuzz_device_extraopt);
     qdict_put_str(qdict, "driver", fuzz_driver);
     // qdict_put_str(qdict, "id", "fuzz0");
 
@@ -325,8 +326,6 @@ static void prop_fuzz(QTestState *s,
         Size -= prop_type[type_id].size;
     }
 
-    // TODO: parse the extra options and add them to the qdict
-
     Error *err = NULL;
     DeviceState *dev = qdev_device_add_from_qdict(qdict, true, &err);
     if (err) {
@@ -336,11 +335,11 @@ static void prop_fuzz(QTestState *s,
         goto clean;
     }
 
-    // // continue initialization and tests that not completed
-    // QOSGraphNode *node = qos_graph_get_node(fuzz_driver);
-    // void *obj = qos_driver_new(node, fuzz_device_parent, fuzz_qos_alloc, fuzz_edge_arg);
-    // qos_object_start_hw(obj);
-    // qos_object_destroy(obj);
+    // continue initialization and tests that not completed
+    QOSGraphNode *node = qos_graph_get_node(fuzz_driver);
+    void *obj = qos_driver_new(node, fuzz_device_parent, fuzz_qos_alloc, fuzz_edge_arg);
+    qos_object_start_hw(obj);
+    qos_object_destroy(obj);
 
     // do some clean 
 

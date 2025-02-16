@@ -85,6 +85,7 @@ static GString *qos_build_main_args(void)
     /* Prepend the arguments that we need */
     g_string_prepend(cmd_line,
             TARGET_NAME " -display none -machine accel=qtest -m 64 ");
+    printf("Starting with cmdline: %s\n", cmd_line->str);
     return cmd_line;
 }
 
