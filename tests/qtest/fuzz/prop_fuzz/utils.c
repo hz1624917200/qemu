@@ -44,30 +44,21 @@ void qdict_put_bool_buf(QDict *qdict, const char *key, const unsigned char *valu
 
 void qdict_put_int8_buf(QDict *qdict, const char *key, const unsigned char *value)
 {
-	qdict_put_int(qdict, key, *(int8_t *)value);
+    int8_t val = *(int8_t *)value;
+    val &= 0x7F;    // avoid negative values
+	qdict_put_int(qdict, key, val);
 }
 
 void qdict_put_int16_buf(QDict *qdict, const char *key, const unsigned char *value)
 {
-	qdict_put_int(qdict, key, *(int16_t *)value);
+    int16_t val = *(int16_t *)value;
+    val &= 0x7FFF;    // avoid negative values
+	qdict_put_int(qdict, key, val);
 }
 
 void qdict_put_int32_buf(QDict *qdict, const char *key, const unsigned char *value)
 {
-	qdict_put_int(qdict, key, *(int32_t *)value);
-}
-
-void qdict_put_uint8_buf(QDict *qdict, const char *key, const unsigned char *value)
-{
-    qdict_put_int(qdict, key, *(uint8_t *)value);
-}
-
-void qdict_put_uint16_buf(QDict *qdict, const char *key, const unsigned char *value)
-{
-    qdict_put_int(qdict, key, *(uint16_t *)value);
-}
-
-void qdict_put_uint32_buf(QDict *qdict, const char *key, const unsigned char *value)
-{
-    qdict_put_int(qdict, key, *(uint32_t *)value);
+    int32_t val = *(int32_t *)value;
+    val &= 0x7FFFFFFF;    // avoid negative values
+	qdict_put_int(qdict, key, val);
 }

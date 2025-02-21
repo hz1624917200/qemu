@@ -255,9 +255,17 @@ static void init_prop_list(void)
 
     fscanf(prop_file, "%d\n", &prop_list_size);
     prop_list = g_new0(FuzzProp, prop_list_size);
+    bool valid = true;
     for (int i = 0; i < prop_list_size; i++) {
-        prop_list[i].name = g_new0(char, 64);
+        if (valid)
+            prop_list[i].name = g_new0(char, 64);
         fscanf(prop_file, "%63s %d\n", prop_list[i].name, &prop_list[i].type);
+        if (qdict_haskey(fuzz_device_extraopt, prop_list[i].name)) {
+            valid = false;
+            i--; prop_list_size--;
+            continue;
+        }
+        valid = true;
     }
 
     fclose(prop_file);
@@ -291,8 +299,8 @@ static void prop_fuzz(QTestState *s,
         const unsigned char *Data, size_t Size)
 {
     // for debug
-    // Size = 3;
-    // Data = (unsigned char*)"\xac\xac\xd5";
+    Size = 3;
+    Data = (unsigned char*)"\x30\x11\x0a";
 
     if (verbose) {
         printf("Data size: %ld\n", Size);
@@ -309,7 +317,6 @@ static void prop_fuzz(QTestState *s,
     // Create Property QDict for qdev_device_add
     QDict *qdict = qdict_clone_shallow(fuzz_device_extraopt);
     qdict_put_str(qdict, "driver", fuzz_driver);
-    // qdict_put_str(qdict, "id", "fuzz0");
 
     // add device properties
     for (int i = 0; i < prop_list_size && Size; i++) {
