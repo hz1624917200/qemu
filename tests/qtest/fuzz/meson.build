@@ -6,7 +6,8 @@ specific_fuzz_ss.add(files('fuzz.c', 'qos_fuzz.c',
                            'qtest_wrappers.c'), qos)
 
 # add all files in `prop_fuzz` dir
-specific_fuzz_ss.add(files('prop_fuzz/qos_prop_fuzz.c', 'prop_fuzz/utils.c'), qos)
+specific_fuzz_ss.add(files('prop_fuzz/qos_prop_fuzz.c', 'prop_fuzz/utils.c', 'prop_fuzz/fuzz_register.c'), qos)
+# specific_fuzz_ss.add(files('prop_fuzz/qos_prop_fuzz.c', 'prop_fuzz/utils.c'), qos)
 
 # Targets
 specific_fuzz_ss.add(when: 'CONFIG_I440FX', if_true: files('i440fx_fuzz.c'))

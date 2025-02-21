@@ -29,8 +29,6 @@
 #include "tests/qtest/libqos/qgraph_internal.h"
 #include "tests/qtest/libqos/qos_external.h"
 
-#include "../fuzz.h"
-#include "../qos_fuzz.h"
 #include "qos_prop_fuzz.h"
 #include "utils.h"
 
@@ -273,6 +271,10 @@ static void init_prop_list(void)
 
 static GString *qos_prop_get_cmdline(FuzzTarget *t)
 {
+    // some extra initialization
+    if (g_getenv("VERBOSE")) {
+        verbose = true;
+    }
     /*
      * Set a global variable that we use to identify the qos_path for our
      * fuzz_target
@@ -295,12 +297,12 @@ void fuzz_add_qos_prop_target(
     fuzz_add_target(fuzz_opts);
 }
 
-static void prop_fuzz(QTestState *s,
+void prop_fuzz(QTestState *s,
         const unsigned char *Data, size_t Size)
 {
     // for debug
-    Size = 3;
-    Data = (unsigned char*)"\x30\x11\x0a";
+    // Size = 3;
+    // Data = (unsigned char*)"\x30\x11\x0a";
 
     if (verbose) {
         printf("Data size: %ld\n", Size);
@@ -364,32 +366,3 @@ clean:
     drain_call_rcu();   // wait for RCU to recycle the objects
     qdict_unref(qdict);
 }
-
-
-// Test case: e1000 network device
-static void test_e1000_register_nodes(void)
-{
-    if (g_getenv("VERBOSE")) {
-        verbose = true;
-    }
-
-    fuzz_add_qos_prop_target(&(FuzzTarget){
-            .name = "e1000e-prop-fuzz",
-            .description = "Fuzz the e1000e network device properties",
-            .pre_fuzz = &qos_init_path,
-            .fuzz = prop_fuzz,},
-            "e1000e",
-            &(QOSGraphTestOptions){.before = net_test_setup_socket}
-            );
-    fuzz_add_qos_prop_target(&(FuzzTarget){
-            .name = "virtio-net-pci-prop-fuzz",
-            .description = "Fuzz the virtio-net network device properties",
-            .pre_fuzz = &qos_init_path,
-            .fuzz = prop_fuzz,},
-            "virtio-net-pci",
-            &(QOSGraphTestOptions){.before = net_test_setup_socket}
-            );
-    
-}
-
-libqos_init(test_e1000_register_nodes);

@@ -1,7 +1,10 @@
 #ifndef QOS_PROP_FUZZ_H
 #define QOS_PROP_FUZZ_H
 
+#include "qemu/osdep.h"
+
 #include "tests/qtest/fuzz/fuzz.h"
+#include "tests/qtest/fuzz/qos_fuzz.h"
 #include "tests/qtest/libqos/qgraph.h"
 
 typedef enum {
@@ -26,5 +29,6 @@ void fuzz_add_qos_prop_target(
 		QOSGraphTestOptions *opts
 		);
 
+void prop_fuzz(QTestState *s, const unsigned char *Data, size_t Size);
 
 #endif
