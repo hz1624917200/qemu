@@ -325,7 +325,6 @@ void prop_fuzz(QTestState *s,
         int type_id = prop_list[i].type;
         if (type_id > PROP_TYPE_UNSIGNED) {
             type_id -= PROP_TYPE_UNSIGNED;
-
         }
         if (Size < prop_type[type_id].size) {
             continue;

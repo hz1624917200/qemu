@@ -434,6 +434,9 @@ static void qos_traverse_graph(QOSGraphNode *root, QOSTestCallback callback)
                 }
 
                 if (!dest_node->visited && dest_node->available) {
+                    // if (dest_node->type == QNODE_DRIVER) {
+                    //     printf("%s\n", dest_node->name);
+                    // }
                     qos_push(dest_node, s_el, e);
                 }
             }
