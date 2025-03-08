@@ -82,6 +82,38 @@ static PropType prop_type[] = {
     int32_t: qdict_put_int) \
     (qdict, key, value)
 
+static void init_prop_list(void)
+{
+    const char *prop_name_file;
+    prop_name_file = (const char *)g_getenv("PROP_FILE");
+    if (!prop_name_file) {  // set to default value
+        prop_name_file = "prop_list.txt";
+    }
+
+    FILE *prop_file = fopen(prop_name_file, "r");
+    if (!prop_file) {
+        fprintf(stderr, "Error opening file %s\n", prop_name_file);
+        abort();
+    }
+
+    fscanf(prop_file, "%d\n", &prop_list_size);
+    prop_list = g_new0(FuzzProp, prop_list_size);
+    bool valid = true;
+    for (int i = 0; i < prop_list_size; i++) {
+        if (valid)
+            prop_list[i].name = g_new0(char, 64);
+        fscanf(prop_file, "%63s %d\n", prop_list[i].name, &prop_list[i].type);
+        if (qdict_haskey(fuzz_device_extraopt, prop_list[i].name)) {
+            valid = false;
+            i--; prop_list_size--;
+            continue;
+        }
+        valid = true;
+    }
+
+    fclose(prop_file);
+}
+
 static GString *qos_prop_build_main_args(void)
 {
     char **path = fuzz_path_vec;
@@ -93,6 +125,8 @@ static GString *qos_prop_build_main_args(void)
         fprintf(stderr, "QOS Path not found\n");
         abort();
     }
+
+    init_prop_list();
 
     /* Before test */
     cmd_line = g_string_new(path[0]);
@@ -116,6 +150,9 @@ static GString *qos_prop_build_main_args(void)
  */
 static int walk_path(QOSGraphNode *orig_path, int len)
 {
+    // For enumerate device nodes
+    // return 0;
+
     QOSGraphNode *path;
     QOSGraphEdge *edge;
 
@@ -237,38 +274,6 @@ static int walk_path(QOSGraphNode *orig_path, int len)
     return 1;
 }
 
-static void init_prop_list(void)
-{
-    const char *prop_name_file;
-    prop_name_file = (const char *)g_getenv("PROP_FILE");
-    if (!prop_name_file) {  // set to default value
-        prop_name_file = "prop_list.txt";
-    }
-
-    FILE *prop_file = fopen(prop_name_file, "r");
-    if (!prop_file) {
-        fprintf(stderr, "Error opening file %s\n", prop_name_file);
-        abort();
-    }
-
-    fscanf(prop_file, "%d\n", &prop_list_size);
-    prop_list = g_new0(FuzzProp, prop_list_size);
-    bool valid = true;
-    for (int i = 0; i < prop_list_size; i++) {
-        if (valid)
-            prop_list[i].name = g_new0(char, 64);
-        fscanf(prop_file, "%63s %d\n", prop_list[i].name, &prop_list[i].type);
-        if (qdict_haskey(fuzz_device_extraopt, prop_list[i].name)) {
-            valid = false;
-            i--; prop_list_size--;
-            continue;
-        }
-        valid = true;
-    }
-
-    fclose(prop_file);
-}
-
 static GString *qos_prop_get_cmdline(FuzzTarget *t)
 {
     // some extra initialization
@@ -282,7 +287,6 @@ static GString *qos_prop_get_cmdline(FuzzTarget *t)
     fuzz_target_name = t->name;
     qos_set_machines_devices_available();
     qos_graph_foreach_test_path(walk_path);
-    init_prop_list();
     return qos_prop_build_main_args();
 }
 

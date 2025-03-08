@@ -1,4 +1,6 @@
 #include "utils.h"
+#include "qemu/osdep.h"
+#include "tests/qtest/libqtest-single.h"
 
 static int sockfds[2];
 static bool sockfds_initialized;
@@ -26,16 +28,7 @@ QDict *parse_opts(GString *opt_str)
     return opt_dict;
 }
 
-void *net_test_setup_socket(GString *cmd_line, void *arg)
-{
-	int ret = socketpair(PF_UNIX, SOCK_STREAM, 0, sockfds);
-    g_assert_cmpint(ret, !=, -1);
-    g_unix_set_fd_nonblocking(sockfds[0], true, NULL);
-    sockfds_initialized = true;
-    g_string_append_printf(cmd_line, " -netdev socket,fd=%d,id=hs0 ",
-                           sockfds[1]);
-    return arg;
-}
+// qdict put helper functions
 
 void qdict_put_bool_buf(QDict *qdict, const char *key, const unsigned char *value)
 {
@@ -61,4 +54,63 @@ void qdict_put_int32_buf(QDict *qdict, const char *key, const unsigned char *val
     int32_t val = *(int32_t *)value;
     val &= 0x7FFFFFFF;    // avoid negative values
 	qdict_put_int(qdict, key, val);
+}
+
+// Qemu Device Graph Test Options
+
+void *net_test_setup_socket(GString *cmd_line, void *arg)
+{
+	int ret = socketpair(PF_UNIX, SOCK_STREAM, 0, sockfds);
+    g_assert_cmpint(ret, !=, -1);
+    g_unix_set_fd_nonblocking(sockfds[0], true, NULL);
+    sockfds_initialized = true;
+    g_string_append_printf(cmd_line, " -netdev socket,fd=%d,id=hs0 ",
+                           sockfds[1]);
+    return arg;
+}
+
+#define TEST_IMAGE_SIZE         (64 * 1024 * 1024)
+
+static void drive_destroy(void *path)
+{
+    unlink(path);
+    g_free(path);
+}
+
+static char *drive_create(void)
+{
+    int fd, ret;
+    char *t_path;
+
+    /* Create a temporary raw image */
+    fd = g_file_open_tmp("qtest.XXXXXX", &t_path, NULL);
+    g_assert_cmpint(fd, >=, 0);
+    ret = ftruncate(fd, TEST_IMAGE_SIZE);
+    g_assert_cmpint(ret, ==, 0);
+    close(fd);
+
+    g_test_queue_destroy(drive_destroy, t_path);
+    return t_path;
+}
+
+void *virtio_blk_test_setup(GString *cmd_line, void *arg)
+{
+    char *tmp_path = drive_create();
+
+    g_string_append_printf(cmd_line,
+                           " -drive if=none,id=drive0,file=%s,"
+                           "format=raw,auto-read-only=off ",
+                           tmp_path);
+
+    return arg;
+}
+
+void *virtio_scsi_test_setup(GString *cmd_line, void *arg)
+{
+    g_string_append(cmd_line,
+                    " -drive file=blkdebug::null-co://,"
+                    "file.image.read-zeroes=on,"
+                    "if=none,id=dr1,format=raw,file.align=4k "
+                    "-device scsi-hd,drive=dr1,lun=0,scsi-id=1");
+    return arg;
 }

@@ -935,7 +935,9 @@ void qdev_unplug(DeviceState *dev, Error **errp)
      * otherwise just remove it synchronously */
     hdc = HOTPLUG_HANDLER_GET_CLASS(hotplug_ctrl);
     if (hdc->unplug_request) {
-        hotplug_handler_unplug_request(hotplug_ctrl, dev, &local_err);
+        // hotplug_handler_unplug_request(hotplug_ctrl, dev, &local_err);
+        hotplug_handler_unplug(hotplug_ctrl, dev, &local_err);
+        object_unparent(OBJECT(dev));
     } else {
         hotplug_handler_unplug(hotplug_ctrl, dev, &local_err);
         if (!local_err) {
