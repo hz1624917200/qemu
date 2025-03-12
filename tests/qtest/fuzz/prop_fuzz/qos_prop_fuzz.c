@@ -319,6 +319,12 @@ void prop_fuzz(QTestState *s,
         if (Size % 16 != 0) {
             printf("\n");
         }
+    } else {
+        // Still need to print the data for tracing the input
+        for (size_t i = 0; i < Size; i++) {
+            printf("%02x ", Data[i]);
+        }
+        printf("\n");
     }
     // Create Property QDict for qdev_device_add
     QDict *qdict = qdict_clone_shallow(fuzz_device_extraopt);

@@ -65,7 +65,7 @@ static void prop_fuzz_register_nodes(void)
             .pre_fuzz = &qos_init_path,
             .fuzz = prop_fuzz,},
             "virtio-blk-pci",
-            &(QOSGraphTestOptions){}
+            &(QOSGraphTestOptions){.before = virtio_blk_test_setup}
             );
     fuzz_add_qos_prop_target(&(FuzzTarget){
             .name = "virtio-balloon-pci-prop-fuzz",
