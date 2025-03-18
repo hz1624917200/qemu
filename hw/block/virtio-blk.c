@@ -1948,7 +1948,9 @@ static void virtio_blk_device_unrealize(DeviceState *dev)
     qemu_mutex_destroy(&s->rq_lock);
     blk_ram_registrar_destroy(&s->blk_ram_registrar);
     qemu_del_vm_change_state_handler(s->change);
-    blockdev_mark_auto_del(s->blk);
+    if (!blk_name(s->blk)) {        // Named blk backend will be reused by other devices
+        blockdev_mark_auto_del(s->blk);
+    }
     virtio_cleanup(vdev);
 }
 
