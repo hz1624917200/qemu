@@ -8,6 +8,30 @@ specific_fuzz_ss.add(files('fuzz.c', 'qos_fuzz.c',
 # add all files in `prop_fuzz` dir
 specific_fuzz_ss.add(files('prop_fuzz/qos_prop_fuzz.c', 'prop_fuzz/utils.c', 'prop_fuzz/fuzz_register.c'), qos)
 # specific_fuzz_ss.add(files('prop_fuzz/qos_prop_fuzz.c', 'prop_fuzz/utils.c'), qos)
+specific_fuzz_ss.add(files(
+        '../ne2000-test.c',
+        '../isl_pmbus_vr-test.c',
+        '../ds1338-test.c',
+        '../pca9552-test.c',
+        '../adm1272-test.c',
+        '../nvme-test.c',
+        '../tmp105-test.c',
+        '../es1370-test.c',
+        '../eepro100-test.c',
+        '../ufs-test.c',
+        '../lsm303dlhc-mag-test.c',
+        '../ipoctal232-test.c',
+        '../tulip-test.c',
+        '../vmxnet3-test.c',
+        '../max34451-test.c',
+        '../usb-hcd-ohci-test.c',
+        '../megasas-test.c',
+        '../pcnet-test.c',
+        '../adm1266-test.c',
+        '../ac97-test.c',
+        '../emc141x-test.c',
+        '../e1000-test.c',
+))
 
 # Targets
 specific_fuzz_ss.add(when: 'CONFIG_I440FX', if_true: files('i440fx_fuzz.c'))

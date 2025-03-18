@@ -16,5 +16,6 @@ void qdict_put_int32_buf(QDict *qdict, const char *key, const unsigned char *val
 void *net_test_setup_socket(GString *cmd_line, void *arg);
 void *virtio_blk_test_setup(GString *cmd_line, void *arg);
 void *virtio_scsi_test_setup(GString *cmd_line, void *arg);
+void *igb_test_setup_no_socket(GString *cmd_line, void *arg);
 
 #endif

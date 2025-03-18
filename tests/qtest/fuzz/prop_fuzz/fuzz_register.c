@@ -4,6 +4,22 @@
 static void prop_fuzz_register_nodes(void)
 {
     fuzz_add_qos_prop_target(&(FuzzTarget){
+            .name = "i440FX-pcihost-prop-fuzz",
+            .description = "Fuzz i440FX-pcihost device property",
+            .pre_fuzz = &qos_init_path,
+            .fuzz = prop_fuzz,},
+            "i440FX-pcihost",
+            &(QOSGraphTestOptions){}
+            );
+    fuzz_add_qos_prop_target(&(FuzzTarget){
+            .name = "pci-bus-pc-prop-fuzz",
+            .description = "Fuzz pci-bus-pc device property",
+            .pre_fuzz = &qos_init_path,
+            .fuzz = prop_fuzz,},
+            "pci-bus-pc",
+            &(QOSGraphTestOptions){}
+            );
+    fuzz_add_qos_prop_target(&(FuzzTarget){
             .name = "virtio-9p-pci-prop-fuzz",
             .description = "Fuzz virtio-9p-pci device property",
             .pre_fuzz = &qos_init_path,
@@ -17,6 +33,14 @@ static void prop_fuzz_register_nodes(void)
             .pre_fuzz = &qos_init_path,
             .fuzz = prop_fuzz,},
             "vhost-user-gpio-pci",
+            &(QOSGraphTestOptions){}
+            );
+    fuzz_add_qos_prop_target(&(FuzzTarget){
+            .name = "virtio-iommu-pci-prop-fuzz",
+            .description = "Fuzz virtio-iommu-pci device property",
+            .pre_fuzz = &qos_init_path,
+            .fuzz = prop_fuzz,},
+            "virtio-iommu-pci",
             &(QOSGraphTestOptions){}
             );
     fuzz_add_qos_prop_target(&(FuzzTarget){
@@ -97,7 +121,7 @@ static void prop_fuzz_register_nodes(void)
             .pre_fuzz = &qos_init_path,
             .fuzz = prop_fuzz,},
             "igb",
-            &(QOSGraphTestOptions){}
+            &(QOSGraphTestOptions){.before = igb_test_setup_no_socket}
             );
     fuzz_add_qos_prop_target(&(FuzzTarget){
             .name = "e1000e-prop-fuzz",

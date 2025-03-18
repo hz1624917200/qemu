@@ -114,3 +114,15 @@ void *virtio_scsi_test_setup(GString *cmd_line, void *arg)
                     "-device scsi-hd,drive=dr1,lun=0,scsi-id=1");
     return arg;
 }
+
+void *igb_test_setup_no_socket(GString *cmd_line, void *arg)
+{
+    g_string_append(cmd_line, " -netdev hubport,hubid=0,id=hs0 ");
+    return arg;
+}
+
+// for dependency of generic driver nodes
+void qos_invalidate_command_line(void)
+{
+    return;
+}
