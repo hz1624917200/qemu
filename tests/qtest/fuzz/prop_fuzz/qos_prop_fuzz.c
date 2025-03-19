@@ -151,7 +151,7 @@ static GString *qos_prop_build_main_args(void)
 static int walk_path(QOSGraphNode *orig_path, int len)
 {
     // For enumerate device nodes
-    return 0;
+    // return 0;
 
     QOSGraphNode *path;
     QOSGraphEdge *edge;
