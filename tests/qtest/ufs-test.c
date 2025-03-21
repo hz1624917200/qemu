@@ -1097,11 +1097,12 @@ static void ufs_register_nodes(void)
      * Check architecture
      * TODO: Enable ufs io tests for ppc64
      */
-    arch = qtest_get_arch();
-    if (!strcmp(arch, "ppc64")) {
-        g_test_message("Skipping ufs io tests for ppc64");
-        return;
-    }
+    // Temporarily disable Arch check for property fuzz
+    // arch = qtest_get_arch();
+    // if (!strcmp(arch, "ppc64")) {
+    //     g_test_message("Skipping ufs io tests for ppc64");
+    //     return;
+    // }
     qos_add_test("init", "ufs", ufstest_init, NULL);
     qos_add_test("legacy-read-write", "ufs", ufstest_read_write, &io_test_opts);
     qos_add_test("mcq-read-write", "ufs", ufstest_read_write, &mcq_test_opts);
