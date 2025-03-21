@@ -29,7 +29,7 @@
 #include "qgraph_internal.h"
 #include "qos_external.h"
 
-void *fuzz_device_parent;
+void *fuzz_device_parent = NULL;
 
 static void machine_apply_to_node(const char *name)
 {
@@ -121,7 +121,7 @@ void *allocate_objects(QTestState *qts, char **path, QGuestAllocator **p_alloc)
     }
 
     for (;;) {
-        if (node->type != QNODE_INTERFACE) {
+        if (node->type != QNODE_INTERFACE && !fuzz_device_parent) {
             qos_object_start_hw(obj);
             parent = obj;
         }
