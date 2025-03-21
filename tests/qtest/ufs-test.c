@@ -1070,7 +1070,7 @@ static void *ufs_blk_test_setup(GString *cmd_line, void *arg)
 
 static void ufs_register_nodes(void)
 {
-    const char *arch;
+    // const char *arch;
     QOSGraphEdgeOptions edge_opts = {
         .before_cmd_line = "-blockdev null-co,node-name=drv0,read-zeroes=on",
         .after_cmd_line = "-device ufs-lu,bus=ufs0,drive=drv0,lun=0",
