@@ -126,3 +126,50 @@ void qos_invalidate_command_line(void)
 {
     return;
 }
+
+// For qgraph node creation
+void *dumb_get_driver(void *obj, const char *interface)
+{
+    return NULL;
+}
+
+void dumb_start_hw(QOSGraphObject *obj)
+{
+    return NULL;
+}
+
+void dumb_pci_start_hw(QOSGraphObject *obj)
+{
+    GENERIC_PCI_DEVICE *d = (GENERIC_PCI_DEVICE *) obj;
+
+    qpci_device_enable(&d->pci_dev);
+}
+
+void dumb_destructor(QOSGraphObject *obj)
+{
+    return;
+}
+
+void *generic_pci_create(void *pci_bus, QGuestAllocator *alloc, void *addr)
+{
+    GENERIC_PCI_DEVICE *d = g_new0(GENERIC_PCI_DEVICE, 1);
+    QPCIBus *bus = pci_bus;
+    QPCIAddress *address = addr;
+
+    qpci_device_init(&d->pci_dev, bus, address);
+    
+    d->obj.get_driver = dumb_get_driver;
+    d->obj.start_hw = dumb_pci_start_hw;
+    d->obj.destructor = dumb_destructor;
+
+    return &d->obj;
+}
+
+void *generic_create(void *pci_bus, QGuestAllocator *alloc, void *addr)
+{
+    GENERIC_DEVICE *d = g_new0(GENERIC_DEVICE, 1);
+    d->obj.get_driver = dumb_get_driver;
+    d->obj.start_hw = dumb_start_hw;
+    d->obj.destructor = dumb_destructor;
+    return &d->obj;
+}

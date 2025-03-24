@@ -216,7 +216,9 @@ static int walk_path(QOSGraphNode *orig_path, int len)
 
         path_vec[path_vec_size++] = qos_graph_edge_get_name(path->path_edge);
         /* detect if edge has command line args */
-        after_cmd = qos_graph_edge_get_after_cmd_line(path->path_edge);
+        if (depth < len - 1) {  // device under test node cannot add after_cmd devices, dependency occurred
+            after_cmd = qos_graph_edge_get_after_cmd_line(path->path_edge);
+        }
         after_device = qos_graph_edge_get_extra_device_opts(path->path_edge);
         before_cmd = qos_graph_edge_get_before_cmd_line(path->path_edge);
         edge = qos_graph_get_edge(path->name, node_name);
