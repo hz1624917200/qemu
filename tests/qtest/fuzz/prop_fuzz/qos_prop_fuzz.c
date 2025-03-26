@@ -347,7 +347,7 @@ void prop_fuzz(QTestState *s,
     }
 
     Error *err = NULL;
-    DeviceState *dev = qdev_device_add_from_qdict(qdict, true, &err);
+    DeviceState *dev = qdev_device_add_from_qdict(qdict, false, &err);
     if (err) {
         error_report_err(err);
     }

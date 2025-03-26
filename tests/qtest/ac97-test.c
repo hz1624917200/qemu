@@ -79,7 +79,7 @@ static void ac97_register_nodes(void)
 {
     QOSGraphEdgeOptions opts = {
         .extra_device_opts = "addr=04.0,audiodev=snd0",
-        .after_cmd_line = "-audiodev none,id=snd0"
+        .before_cmd_line = "-audiodev none,id=snd0"
                           ",out.frequency=44100,in.frequency=44100",
     };
     add_qpci_address(&opts, &(QPCIAddress) { .devfn = QPCI_DEVFN(4, 0) });

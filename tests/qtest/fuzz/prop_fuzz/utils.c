@@ -135,7 +135,7 @@ void *dumb_get_driver(void *obj, const char *interface)
 
 void dumb_start_hw(QOSGraphObject *obj)
 {
-    return NULL;
+    return;
 }
 
 void dumb_pci_start_hw(QOSGraphObject *obj)

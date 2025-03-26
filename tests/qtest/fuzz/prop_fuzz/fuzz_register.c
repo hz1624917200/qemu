@@ -299,6 +299,414 @@ static void prop_fuzz_register_nodes(void)
             "i82557b",
             &(QOSGraphTestOptions){}
             );
+    fuzz_add_qos_prop_target(&(FuzzTarget){
+            .name = "virtio-sound-pci-prop-fuzz",
+            .description = "Fuzz virtio-sound-pci device property",
+            .pre_fuzz = &qos_init_path,
+            .fuzz = prop_fuzz,},
+            "virtio-sound-pci",
+            &(QOSGraphTestOptions){}
+            );
+    fuzz_add_qos_prop_target(&(FuzzTarget){
+            .name = "virtio-gpu-pci-prop-fuzz",
+            .description = "Fuzz virtio-gpu-pci device property",
+            .pre_fuzz = &qos_init_path,
+            .fuzz = prop_fuzz,},
+            "virtio-gpu-pci",
+            &(QOSGraphTestOptions){}
+            );
+    fuzz_add_qos_prop_target(&(FuzzTarget){
+            .name = "virtio-vga-prop-fuzz",
+            .description = "Fuzz virtio-vga device property",
+            .pre_fuzz = &qos_init_path,
+            .fuzz = prop_fuzz,},
+            "virtio-vga",
+            &(QOSGraphTestOptions){}
+            );
+    fuzz_add_qos_prop_target(&(FuzzTarget){
+            .name = "virtio-multitouch-pci-prop-fuzz",
+            .description = "Fuzz virtio-multitouch-pci device property",
+            .pre_fuzz = &qos_init_path,
+            .fuzz = prop_fuzz,},
+            "virtio-multitouch-pci",
+            &(QOSGraphTestOptions){}
+            );
+    fuzz_add_qos_prop_target(&(FuzzTarget){
+            .name = "virtio-tablet-pci-prop-fuzz",
+            .description = "Fuzz virtio-tablet-pci device property",
+            .pre_fuzz = &qos_init_path,
+            .fuzz = prop_fuzz,},
+            "virtio-tablet-pci",
+            &(QOSGraphTestOptions){}
+            );
+    fuzz_add_qos_prop_target(&(FuzzTarget){
+            .name = "virtio-crypto-pci-prop-fuzz",
+            .description = "Fuzz virtio-crypto-pci device property",
+            .pre_fuzz = &qos_init_path,
+            .fuzz = prop_fuzz,},
+            "virtio-crypto-pci",
+            &(QOSGraphTestOptions){}
+            );
+    fuzz_add_qos_prop_target(&(FuzzTarget){
+            .name = "virtio-iommu-pci-prop-fuzz",
+            .description = "Fuzz virtio-iommu-pci device property",
+            .pre_fuzz = &qos_init_path,
+            .fuzz = prop_fuzz,},
+            "virtio-iommu-pci",
+            &(QOSGraphTestOptions){}
+            );
+    fuzz_add_qos_prop_target(&(FuzzTarget){
+            .name = "virtio-mem-pci-prop-fuzz",
+            .description = "Fuzz virtio-mem-pci device property",
+            .pre_fuzz = &qos_init_path,
+            .fuzz = prop_fuzz,},
+            "virtio-mem-pci",
+            &(QOSGraphTestOptions){}
+            );
+    fuzz_add_qos_prop_target(&(FuzzTarget){
+            .name = "virtio-pmem-pci-prop-fuzz",
+            .description = "Fuzz virtio-pmem-pci device property",
+            .pre_fuzz = &qos_init_path,
+            .fuzz = prop_fuzz,},
+            "virtio-pmem-pci",
+            &(QOSGraphTestOptions){}
+            );
+    fuzz_add_qos_prop_target(&(FuzzTarget){
+            .name = "virtio-keyboard-pci-prop-fuzz",
+            .description = "Fuzz virtio-keyboard-pci device property",
+            .pre_fuzz = &qos_init_path,
+            .fuzz = prop_fuzz,},
+            "virtio-keyboard-pci",
+            &(QOSGraphTestOptions){}
+            );
+    fuzz_add_qos_prop_target(&(FuzzTarget){
+            .name = "virtio-mouse-pci-prop-fuzz",
+            .description = "Fuzz virtio-mouse-pci device property",
+            .pre_fuzz = &qos_init_path,
+            .fuzz = prop_fuzz,},
+            "virtio-mouse-pci",
+            &(QOSGraphTestOptions){}
+            );
+    fuzz_add_qos_prop_target(&(FuzzTarget){
+            .name = "cirrus-vga-prop-fuzz",
+            .description = "Fuzz cirrus-vga device property",
+            .pre_fuzz = &qos_init_path,
+            .fuzz = prop_fuzz,},
+            "cirrus-vga",
+            &(QOSGraphTestOptions){}
+            );
+    fuzz_add_qos_prop_target(&(FuzzTarget){
+            .name = "secondary-vga-prop-fuzz",
+            .description = "Fuzz secondary-vga device property",
+            .pre_fuzz = &qos_init_path,
+            .fuzz = prop_fuzz,},
+            "secondary-vga",
+            &(QOSGraphTestOptions){}
+            );
+    fuzz_add_qos_prop_target(&(FuzzTarget){
+            .name = "ati-vga-prop-fuzz",
+            .description = "Fuzz ati-vga device property",
+            .pre_fuzz = &qos_init_path,
+            .fuzz = prop_fuzz,},
+            "ati-vga",
+            &(QOSGraphTestOptions){}
+            );
+    fuzz_add_qos_prop_target(&(FuzzTarget){
+            .name = "vmware-svga-prop-fuzz",
+            .description = "Fuzz vmware-svga device property",
+            .pre_fuzz = &qos_init_path,
+            .fuzz = prop_fuzz,},
+            "vmware-svga",
+            &(QOSGraphTestOptions){}
+            );
+    fuzz_add_qos_prop_target(&(FuzzTarget){
+            .name = "VGA-prop-fuzz",
+            .description = "Fuzz VGA device property",
+            .pre_fuzz = &qos_init_path,
+            .fuzz = prop_fuzz,},
+            "VGA",
+            &(QOSGraphTestOptions){}
+            );
+    fuzz_add_qos_prop_target(&(FuzzTarget){
+            .name = "bochs-display-prop-fuzz",
+            .description = "Fuzz bochs-display device property",
+            .pre_fuzz = &qos_init_path,
+            .fuzz = prop_fuzz,},
+            "bochs-display",
+            &(QOSGraphTestOptions){}
+            );
+    fuzz_add_qos_prop_target(&(FuzzTarget){
+            .name = "amd-iommu-prop-fuzz",
+            .description = "Fuzz amd-iommu device property",
+            .pre_fuzz = &qos_init_path,
+            .fuzz = prop_fuzz,},
+            "amd-iommu",
+            &(QOSGraphTestOptions){}
+            );
+    fuzz_add_qos_prop_target(&(FuzzTarget){
+            .name = "intel-iommu-prop-fuzz",
+            .description = "Fuzz intel-iommu device property",
+            .pre_fuzz = &qos_init_path,
+            .fuzz = prop_fuzz,},
+            "intel-iommu",
+            &(QOSGraphTestOptions){}
+            );
+    fuzz_add_qos_prop_target(&(FuzzTarget){
+            .name = "intel-hda-prop-fuzz",
+            .description = "Fuzz intel-hda device property",
+            .pre_fuzz = &qos_init_path,
+            .fuzz = prop_fuzz,},
+            "intel-hda",
+            &(QOSGraphTestOptions){}
+            );
+    fuzz_add_qos_prop_target(&(FuzzTarget){
+            .name = "ide-hd-prop-fuzz",
+            .description = "Fuzz ide-hd device property",
+            .pre_fuzz = &qos_init_path,
+            .fuzz = prop_fuzz,},
+            "ide-hd",
+            &(QOSGraphTestOptions){}
+            );
+    fuzz_add_qos_prop_target(&(FuzzTarget){
+            .name = "ide-cd-prop-fuzz",
+            .description = "Fuzz ide-cd device property",
+            .pre_fuzz = &qos_init_path,
+            .fuzz = prop_fuzz,},
+            "ide-cd",
+            &(QOSGraphTestOptions){}
+            );
+    fuzz_add_qos_prop_target(&(FuzzTarget){
+            .name = "floppy-prop-fuzz",
+            .description = "Fuzz floppy device property",
+            .pre_fuzz = &qos_init_path,
+            .fuzz = prop_fuzz,},
+            "floppy",
+            &(QOSGraphTestOptions){}
+            );
+    fuzz_add_qos_prop_target(&(FuzzTarget){
+            .name = "qemu-xhci-prop-fuzz",
+            .description = "Fuzz qemu-xhci device property",
+            .pre_fuzz = &qos_init_path,
+            .fuzz = prop_fuzz,},
+            "qemu-xhci",
+            &(QOSGraphTestOptions){}
+            );
+    fuzz_add_qos_prop_target(&(FuzzTarget){
+            .name = "rocker-prop-fuzz",
+            .description = "Fuzz rocker device property",
+            .pre_fuzz = &qos_init_path,
+            .fuzz = prop_fuzz,},
+            "rocker",
+            &(QOSGraphTestOptions){}
+            );
+    fuzz_add_qos_prop_target(&(FuzzTarget){
+            .name = "rtl8139-prop-fuzz",
+            .description = "Fuzz rtl8139 device property",
+            .pre_fuzz = &qos_init_path,
+            .fuzz = prop_fuzz,},
+            "rtl8139",
+            &(QOSGraphTestOptions){}
+            );
+    fuzz_add_qos_prop_target(&(FuzzTarget){
+            .name = "ich9-usb-ehci1-prop-fuzz",
+            .description = "Fuzz ich9-usb-ehci1 device property",
+            .pre_fuzz = &qos_init_path,
+            .fuzz = prop_fuzz,},
+            "ich9-usb-ehci1",
+            &(QOSGraphTestOptions){}
+            );
+    fuzz_add_qos_prop_target(&(FuzzTarget){
+            .name = "pci-ohci-prop-fuzz",
+            .description = "Fuzz pci-ohci device property",
+            .pre_fuzz = &qos_init_path,
+            .fuzz = prop_fuzz,},
+            "pci-ohci",
+            &(QOSGraphTestOptions){}
+            );
+    fuzz_add_qos_prop_target(&(FuzzTarget){
+            .name = "mptsas1068-prop-fuzz",
+            .description = "Fuzz mptsas1068 device property",
+            .pre_fuzz = &qos_init_path,
+            .fuzz = prop_fuzz,},
+            "mptsas1068",
+            &(QOSGraphTestOptions){}
+            );
+    fuzz_add_qos_prop_target(&(FuzzTarget){
+            .name = "pvscsi-prop-fuzz",
+            .description = "Fuzz pvscsi device property",
+            .pre_fuzz = &qos_init_path,
+            .fuzz = prop_fuzz,},
+            "pvscsi",
+            &(QOSGraphTestOptions){}
+            );
+    fuzz_add_qos_prop_target(&(FuzzTarget){
+            .name = "lsi53c810-prop-fuzz",
+            .description = "Fuzz lsi53c810 device property",
+            .pre_fuzz = &qos_init_path,
+            .fuzz = prop_fuzz,},
+            "lsi53c810",
+            &(QOSGraphTestOptions){}
+            );
+    fuzz_add_qos_prop_target(&(FuzzTarget){
+            .name = "am53c974-prop-fuzz",
+            .description = "Fuzz am53c974 device property",
+            .pre_fuzz = &qos_init_path,
+            .fuzz = prop_fuzz,},
+            "am53c974",
+            &(QOSGraphTestOptions){}
+            );
+    fuzz_add_qos_prop_target(&(FuzzTarget){
+            .name = "gus-prop-fuzz",
+            .description = "Fuzz gus device property",
+            .pre_fuzz = &qos_init_path,
+            .fuzz = prop_fuzz,},
+            "gus",
+            &(QOSGraphTestOptions){}
+            );
+    fuzz_add_qos_prop_target(&(FuzzTarget){
+            .name = "cs4231a-prop-fuzz",
+            .description = "Fuzz cs4231a device property",
+            .pre_fuzz = &qos_init_path,
+            .fuzz = prop_fuzz,},
+            "cs4231a",
+            &(QOSGraphTestOptions){}
+            );
+    fuzz_add_qos_prop_target(&(FuzzTarget){
+            .name = "sb16-prop-fuzz",
+            .description = "Fuzz sb16 device property",
+            .pre_fuzz = &qos_init_path,
+            .fuzz = prop_fuzz,},
+            "sb16",
+            &(QOSGraphTestOptions){}
+            );
+    fuzz_add_qos_prop_target(&(FuzzTarget){
+            .name = "pci-serial-prop-fuzz",
+            .description = "Fuzz pci-serial device property",
+            .pre_fuzz = &qos_init_path,
+            .fuzz = prop_fuzz,},
+            "pci-serial",
+            &(QOSGraphTestOptions){}
+            );
+    fuzz_add_qos_prop_target(&(FuzzTarget){
+            .name = "i6300esb-prop-fuzz",
+            .description = "Fuzz i6300esb device property",
+            .pre_fuzz = &qos_init_path,
+            .fuzz = prop_fuzz,},
+            "i6300esb",
+            &(QOSGraphTestOptions){}
+            );
+    fuzz_add_qos_prop_target(&(FuzzTarget){
+            .name = "ib700-prop-fuzz",
+            .description = "Fuzz ib700 device property",
+            .pre_fuzz = &qos_init_path,
+            .fuzz = prop_fuzz,},
+            "ib700",
+            &(QOSGraphTestOptions){}
+            );
+    fuzz_add_qos_prop_target(&(FuzzTarget){
+            .name = "isa-fdc-prop-fuzz",
+            .description = "Fuzz isa-fdc device property",
+            .pre_fuzz = &qos_init_path,
+            .fuzz = prop_fuzz,},
+            "isa-fdc",
+            &(QOSGraphTestOptions){}
+            );
+    fuzz_add_qos_prop_target(&(FuzzTarget){
+            .name = "isa-cirrus-vga-prop-fuzz",
+            .description = "Fuzz isa-cirrus-vga device property",
+            .pre_fuzz = &qos_init_path,
+            .fuzz = prop_fuzz,},
+            "isa-cirrus-vga",
+            &(QOSGraphTestOptions){}
+            );
+    fuzz_add_qos_prop_target(&(FuzzTarget){
+            .name = "isa-vga-prop-fuzz",
+            .description = "Fuzz isa-vga device property",
+            .pre_fuzz = &qos_init_path,
+            .fuzz = prop_fuzz,},
+            "isa-vga",
+            &(QOSGraphTestOptions){}
+            );
+    fuzz_add_qos_prop_target(&(FuzzTarget){
+            .name = "i8042-prop-fuzz",
+            .description = "Fuzz i8042 device property",
+            .pre_fuzz = &qos_init_path,
+            .fuzz = prop_fuzz,},
+            "i8042",
+            &(QOSGraphTestOptions){}
+            );
+    fuzz_add_qos_prop_target(&(FuzzTarget){
+            .name = "isa-applesmc-prop-fuzz",
+            .description = "Fuzz isa-applesmc device property",
+            .pre_fuzz = &qos_init_path,
+            .fuzz = prop_fuzz,},
+            "isa-applesmc",
+            &(QOSGraphTestOptions){}
+            );
+    fuzz_add_qos_prop_target(&(FuzzTarget){
+            .name = "mc146818rtc-prop-fuzz",
+            .description = "Fuzz mc146818rtc device property",
+            .pre_fuzz = &qos_init_path,
+            .fuzz = prop_fuzz,},
+            "mc146818rtc",
+            &(QOSGraphTestOptions){}
+            );
+    fuzz_add_qos_prop_target(&(FuzzTarget){
+            .name = "kvaser_pci-prop-fuzz",
+            .description = "Fuzz kvaser_pci device property",
+            .pre_fuzz = &qos_init_path,
+            .fuzz = prop_fuzz,},
+            "kvaser_pci",
+            &(QOSGraphTestOptions){}
+            );
+    fuzz_add_qos_prop_target(&(FuzzTarget){
+            .name = "ctucan_pci-prop-fuzz",
+            .description = "Fuzz ctucan_pci device property",
+            .pre_fuzz = &qos_init_path,
+            .fuzz = prop_fuzz,},
+            "ctucan_pci",
+            &(QOSGraphTestOptions){}
+            );
+    fuzz_add_qos_prop_target(&(FuzzTarget){
+            .name = "pcm3680_pci-prop-fuzz",
+            .description = "Fuzz pcm3680_pci device property",
+            .pre_fuzz = &qos_init_path,
+            .fuzz = prop_fuzz,},
+            "pcm3680_pci",
+            &(QOSGraphTestOptions){}
+            );
+    fuzz_add_qos_prop_target(&(FuzzTarget){
+            .name = "mioe3680_pci-prop-fuzz",
+            .description = "Fuzz mioe3680_pci device property",
+            .pre_fuzz = &qos_init_path,
+            .fuzz = prop_fuzz,},
+            "mioe3680_pci",
+            &(QOSGraphTestOptions){}
+            );
+    fuzz_add_qos_prop_target(&(FuzzTarget){
+            .name = "acpi-erst-prop-fuzz",
+            .description = "Fuzz acpi-erst device property",
+            .pre_fuzz = &qos_init_path,
+            .fuzz = prop_fuzz,},
+            "acpi-erst",
+            &(QOSGraphTestOptions){}
+            );
+    fuzz_add_qos_prop_target(&(FuzzTarget){
+            .name = "pci-ipmi-kcs-prop-fuzz",
+            .description = "Fuzz pci-ipmi-kcs device property",
+            .pre_fuzz = &qos_init_path,
+            .fuzz = prop_fuzz,},
+            "pci-ipmi-kcs",
+            &(QOSGraphTestOptions){}
+            );
+    fuzz_add_qos_prop_target(&(FuzzTarget){
+            .name = "pci-ipmi-bt-prop-fuzz",
+            .description = "Fuzz pci-ipmi-bt device property",
+            .pre_fuzz = &qos_init_path,
+            .fuzz = prop_fuzz,},
+            "pci-ipmi-bt",
+            &(QOSGraphTestOptions){}
+            );
 }
 
-libqos_init(prop_fuzz_register_nodes);
+fuzz_target_init(prop_fuzz_register_nodes);

@@ -1,0 +1,156 @@
+virtio-sound-pci 1
+audiodev=my_audiodev,streams=2,addr=06.0
+-M pc -audiodev wav,id=my_audiodev
+
+virtio-multitouch-pci 1
+addr=06.0
+-M q35 -nodefaults
+
+virtio-tablet-pci 1
+addr=06.0
+-M q35 -nodefaults
+
+virtio-crypto-pci 1
+id=crypto0,cryptodev=cryptodev0,addr=06.0
+-M q35 -nodefaults -object cryptodev-backend-builtin,id=cryptodev0
+
+virtio-mem-pci 1
+id=vm0,memdev=mem0,node=0,requested-size=0x1000000,addr=06.0
+-M q35 -nodefaults -m 2G,maxmem=4G -object memory-backend-ram,id=mem0,size=2G
+
+virtio-pmem-pci 1
+id=vm0,memdev=mem0,addr=06.0
+-M q35 -nodefaults -m 2G,maxmem=4G -object memory-backend-ram,id=mem0,size=2G
+
+virtio-keyboard-pci 1
+addr=06.0
+-M q35 -nodefaults
+
+virtio-mouse-pci 1
+addr=06.0
+-M q35 -nodefaults
+
+secondary-vga 1
+addr=06.0
+-M q35 -nodefaults
+
+bochs-display 1
+addr=06.0
+-M q35 -nodefaults
+
+intel-hda 1
+id=hda0,addr=06.0
+-M q35 -nodefaults -audiodev driver=none,id=audio0
+
+ide-hd 0
+drive=disk0,addr=06.0
+-nodefaults -drive file=null-co://,if=none,format=raw,id=disk0
+
+ide-cd 0
+drive=disk0,addr=06.0
+-nodefaults -drive file=null-co://,if=none,format=raw,id=disk0
+
+floppy 0
+id=floppy0,addr=06.0
+-nodefaults -drive id=disk0,file=null-co://,file.read-zeroes=on,if=none,format=raw
+
+qemu-xhci 1
+id=xhci,addr=06.0
+-M q35 -nodefaults -drive file=null-co://,if=none,format=raw,id=disk0 -device usb-bot -device usb-storage,drive=disk0 -chardev null,id=cd0 -chardev null,id=cd1 -device usb-braille,chardev=cd0 -device usb-ccid -device usb-ccid -device usb-kbd -device usb-mouse -device usb-serial,chardev=cd1 -device usb-tablet -device usb-wacom-tablet
+-device usb-tablet,bus=xhci.0
+rocker 1
+addr=06.0
+-M q35 -nodefaults
+
+rtl8139 1
+netdev=net0,addr=06.0
+-M q35 -nodefaults -netdev user,id=net0
+
+mptsas1068 1
+addr=06.0
+-M q35 -nodefaults -device scsi-cd,drive=null0 -blockdev driver=null-co,read-zeroes=on,node-name=null0
+
+pvscsi 1
+addr=06.0
+-M q35 -nodefaults -device scsi-cd,drive=null0 -blockdev driver=null-co,read-zeroes=on,node-name=null0
+
+lsi53c810 1
+addr=06.0
+-M q35 -nodefaults -device scsi-cd,drive=null0 -blockdev driver=null-co,read-zeroes=on,node-name=null0
+
+am53c974 1
+id=scsi,addr=06.0
+-drive id=disk0,if=none,file=null-co://,format=raw -nodefaults
+-device scsi-hd,drive=disk0
+gus 0
+audiodev=snd0,addr=06.0
+-M q35 -nodefaults -audiodev none,id=snd0 -nodefaults
+
+cs4231a 0
+audiodev=snd0,addr=06.0
+-M q35 -nodefaults -audiodev none,id=snd0 -nodefaults
+
+sb16 0
+audiodev=snd0,addr=06.0
+-M q35 -nodefaults -audiodev none,id=snd0 -nodefaults
+
+pci-serial 1
+addr=06.0
+-M q35 -nodefaults
+
+i6300esb 1
+addr=06.0
+-M q35 -nodefaults
+
+ib700 0
+addr=06.0
+-M q35 -nodefaults
+
+isa-fdc 0
+addr=06.0
+-nodefaults
+
+isa-cirrus-vga 0
+addr=06.0
+-M q35 -nodefaults
+
+isa-vga 0
+addr=06.0
+-M q35 -nodefaults
+
+i8042 0
+addr=06.0
+-M q35 -nodefaults
+
+isa-applesmc 0
+addr=06.0
+-M q35 -nodefaults
+
+mc146818rtc 0
+addr=06.0
+-M q35 -nodefaults
+
+kvaser_pci 1
+canbus=canbus0,addr=06.0
+-M q35 -nodefaults -object can-bus,id=canbus0
+
+ctucan_pci 1
+canbus0=canbus,canbus1=canbus,addr=06.0
+-M q35 -nodefaults -object can-bus,id=canbus
+
+pcm3680_pci 1
+canbus0=canbus,canbus1=canbus,addr=06.0
+-M q35 -nodefaults -object can-bus,id=canbus
+
+mioe3680_pci 1
+canbus0=canbus,canbus1=canbus,addr=06.0
+-M q35 -nodefaults -object can-bus,id=canbus
+
+pci-ipmi-kcs 1
+bmc=bmc,addr=06.0
+-M q35 -nodefaults -device ipmi-bmc-sim,id=bmc
+
+pci-ipmi-bt 1
+bmc=bmc,addr=06.0
+-M q35 -nodefaults -device ipmi-bmc-sim,id=bmc
+
