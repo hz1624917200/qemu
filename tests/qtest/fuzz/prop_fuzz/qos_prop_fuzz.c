@@ -303,12 +303,29 @@ void fuzz_add_qos_prop_target(
     fuzz_add_target(fuzz_opts);
 }
 
+unsigned char repro_buf[4096];
+
 void prop_fuzz(QTestState *s,
         const unsigned char *Data, size_t Size)
 {
+    if (g_getenv("REPRO")) {
+        const char *repro_fname = g_getenv("REPRO");
+        FILE *repro = fopen(repro_fname, "r");
+        if (!repro) {
+            fprintf(stderr, "Error opening file %s\n", repro_fname);
+            abort();
+        }
+        
+        Size = 0;
+        while (fscanf(repro, "%hhx", &repro_buf[Size]) != EOF) {
+            Size++;
+        }
+        Data = repro_buf;
+        fclose(repro);
+    }
     // for debug
-    // Size = 3;
-    // Data = (unsigned char*)"\x30\x11\x0a";
+    // Size = 9;
+    // Data = (unsigned char*)"\xf5\x09\x00\xff\xff\x0f\x36\x24\x40";
 
     if (verbose) {
         printf("Data size: %ld\n", Size);
@@ -341,7 +358,10 @@ void prop_fuzz(QTestState *s,
         if (Size < prop_type[type_id].size) {
             continue;
         }
-        prop_type[type_id].qdict_put_handler(qdict, prop_list[i].name, Data);
+        // prop_type[type_id].qdict_put_handler(qdict, prop_list[i].name, Data);
+        // Use uniformed str put method
+        // qdict_put_str(qdict, prop_list[i])
+
         Data += prop_type[type_id].size;
         Size -= prop_type[type_id].size;
     }

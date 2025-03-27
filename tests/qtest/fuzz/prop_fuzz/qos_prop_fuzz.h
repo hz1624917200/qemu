@@ -21,6 +21,7 @@ typedef enum {
 typedef struct {
 	int size;
 	void (*qdict_put_handler)(QDict *qdict, const char *key, const unsigned char *value);
+	const char *print_format;
 } PropType;
 
 void fuzz_add_qos_prop_target(
