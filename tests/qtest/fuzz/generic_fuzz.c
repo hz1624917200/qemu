@@ -27,6 +27,7 @@
 #include "hw/pci/pci_device.h"
 #include "hw/boards.h"
 #include "generic_fuzz_configs.h"
+#include "prop_fuzz/generic_prop_fuzz_configs.h"
 #include "hw/mem/sparse-mem.h"
 
 static void pci_enum(gpointer pcidev, gpointer bus);
@@ -947,11 +948,18 @@ static GString *generic_fuzz_predefined_config_cmdline(FuzzTarget *t)
 
 static GString *generic_prop_fuzz_config_cmdline(FuzzTarget *t)
 {
-    const gchar *args = g_getenv("QEMU_FUZZ_ARGS");
-    g_assert_nonnull(args);
-    generic_fuzz_config *config = t->opaque;
-    config->args = args;
-    return generic_fuzz_predefined_config_cmdline(t);
+    gchar *args;
+    const generic_fuzz_config *config = t->opaque;
+    const gchar *extra_opts = g_getenv("QEMU_FUZZ_EXTRA_OPTS");
+    g_assert_nonnull(extra_opts);
+    g_assert_nonnull(config->args);
+
+    args = g_string_new(NULL);
+    g_string_printf(args, "-device %s%s,%s %s", config->name, config->extra_opts, extra_opts, config->args);
+    // TODO
+    // printf("QEMU args: ");
+
+    return generic_fuzz_cmdline(t);
 }
 
 static void register_generic_fuzz_targets(void)
