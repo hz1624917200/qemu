@@ -914,7 +914,7 @@ static size_t generic_fuzz_crossover(const uint8_t *data1, size_t size1, const
 
 static GString *generic_fuzz_cmdline(FuzzTarget *t)
 {
-    GString *cmd_line = g_string_new(TARGET_NAME);
+    GString *cmd_line = g_string_new(getenv("QEMU_FUZZ_ARCH"));
     if (!getenv("QEMU_FUZZ_ARGS")) {
         usage();
     }
@@ -932,6 +932,7 @@ static GString *generic_fuzz_predefined_config_cmdline(FuzzTarget *t)
 
     config = t->opaque;
     g_setenv("QEMU_AVOID_DOUBLE_FETCH", "1", 1);
+    g_setenv("QEMU_FUZZ_ARCH", TARGET_NAME, 1);
     if (config->argfunc) {
         args = config->argfunc();
         g_setenv("QEMU_FUZZ_ARGS", args, 1);
@@ -942,6 +943,15 @@ static GString *generic_fuzz_predefined_config_cmdline(FuzzTarget *t)
     }
     g_setenv("QEMU_FUZZ_OBJECTS", config->objects, 1);
     return generic_fuzz_cmdline(t);
+}
+
+static GString *generic_prop_fuzz_config_cmdline(FuzzTarget *t)
+{
+    const gchar *args = g_getenv("QEMU_FUZZ_ARGS");
+    g_assert_nonnull(args);
+    generic_fuzz_config *config = t->opaque;
+    config->args = args;
+    return generic_fuzz_predefined_config_cmdline(t);
 }
 
 static void register_generic_fuzz_targets(void)
@@ -961,6 +971,19 @@ static void register_generic_fuzz_targets(void)
                 .name = g_strconcat("generic-fuzz-", config->name, NULL),
                 .description = "Predefined generic-fuzz config.",
                 .get_init_cmdline = generic_fuzz_predefined_config_cmdline,
+                .pre_fuzz = generic_pre_fuzz,
+                .fuzz = generic_fuzz,
+                .crossover = generic_fuzz_crossover,
+                .opaque = (void *)config
+        });
+    }
+
+    for (int i = 0; i < ARRAY_SIZE(prop_fuzz_predefined_configs); i++) {
+        const generic_fuzz_config *config = prop_fuzz_predefined_configs + i;
+        fuzz_add_target(&(FuzzTarget){
+                .name = g_strconcat("generic-prop-fuzz-", config->name, NULL),
+                .description = "Predefined generic-fuzz config.",
+                .get_init_cmdline = generic_prop_fuzz_config_cmdline,
                 .pre_fuzz = generic_pre_fuzz,
                 .fuzz = generic_fuzz,
                 .crossover = generic_fuzz_crossover,

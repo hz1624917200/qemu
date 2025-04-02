@@ -120,11 +120,11 @@ void *virtio_blk_test_setup(GString *cmd_line, void *arg)
 
 void *virtio_scsi_test_setup(GString *cmd_line, void *arg)
 {
-    // g_string_append(cmd_line,
-    //                 " -drive file=blkdebug::null-co://,"
-    //                 "file.image.read-zeroes=on,"
-    //                 "if=none,id=dr1,format=raw,file.align=4k "
-    //                 "-device scsi-hd,drive=dr1,lun=0,scsi-id=1");
+    g_string_append(cmd_line,
+                    " -drive file=blkdebug::null-co://,"
+                    "file.image.read-zeroes=on,"
+                    "if=none,id=dr1,format=raw,file.align=4k "
+                    "-device scsi-hd,drive=dr1,lun=0,scsi-id=1");
     return arg;
 }
 

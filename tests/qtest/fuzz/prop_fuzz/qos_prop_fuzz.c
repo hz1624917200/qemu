@@ -126,7 +126,7 @@ static GString *qos_prop_build_main_args(void)
         abort();
     }
 
-    init_prop_list();
+    // init_prop_list();
 
     /* Before test */
     cmd_line = g_string_new(path[0]);
@@ -139,7 +139,10 @@ static GString *qos_prop_build_main_args(void)
     /* Prepend the arguments that we need */
     g_string_prepend(cmd_line,
             TARGET_NAME " -display none -machine accel=qtest -m 64 ");
-    printf("Starting with cmdline: %s\n", cmd_line->str);
+    // printf("Starting with cmdline: %s\n", cmd_line->str);
+    printf("%s\n", cmd_line->str);
+    exit(0);
+    init_prop_list();   // for compiler happy
     return cmd_line;
 }
 
@@ -206,6 +209,7 @@ static int walk_path(QOSGraphNode *orig_path, int len)
                 fuzz_driver = g_strdup(path->name);
                 fuzz_device_cmdline = g_strdup(path->command_line);
                 fuzz_device_extraopt = parse_opts(after_device_str);
+                puts(after_device_str->str);
                 fuzz_edge_arg = qos_graph_edge_get_arg(edge);
             } else {
                 g_string_append(cmd_line, path->command_line);
@@ -216,9 +220,9 @@ static int walk_path(QOSGraphNode *orig_path, int len)
 
         path_vec[path_vec_size++] = qos_graph_edge_get_name(path->path_edge);
         /* detect if edge has command line args */
-        if (depth < len - 1) {  // device under test node cannot add after_cmd devices, dependency occurred
+        // if (depth < len - 1) {  // device under test node cannot add after_cmd devices, dependency occurred
             after_cmd = qos_graph_edge_get_after_cmd_line(path->path_edge);
-        }
+        // }
         after_device = qos_graph_edge_get_extra_device_opts(path->path_edge);
         before_cmd = qos_graph_edge_get_before_cmd_line(path->path_edge);
         edge = qos_graph_get_edge(path->name, node_name);
