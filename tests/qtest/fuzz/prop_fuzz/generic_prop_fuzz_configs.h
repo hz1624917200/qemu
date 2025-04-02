@@ -17,8 +17,8 @@ const generic_fuzz_config prop_fuzz_predefined_configs[] = {
 	{
 		.arch = "x86_64",
 		.name = "i82559a",
-		.args = "",
-		.extra_opts = "",
+		.args = "-netdev user,id=net0",
+		.extra_opts = ",netdev=net0",
 		.objects = "i8255*",
 	},
 
@@ -33,7 +33,7 @@ const generic_fuzz_config prop_fuzz_predefined_configs[] = {
 	{
 		.arch = "x86_64",
 		.name = "mptsas1068",
-		.args = "-machine q35 -nodefaults -blockdev driver=null-co,read-zeroes=on,node-name=null0 -device scsi-cd,drive=null0",
+		.args = "-machine q35 -nodefaults -device scsi-cd,drive=null0 -blockdev driver=null-co,read-zeroes=on,node-name=null0",
 		.extra_opts = "",
 		.objects = "mptsas1068",
 	},
@@ -49,8 +49,8 @@ const generic_fuzz_config prop_fuzz_predefined_configs[] = {
 	{
 		.arch = "x86_64",
 		.name = "sdhci-pci",
-		.args = "",
-		.extra_opts = "",
+		.args = "-nodefaults -device sd-card,drive=mydrive -drive if=none,index=0,file=null-co://,format=raw,id=mydrive -nographic",
+		.extra_opts = ",sd-spec-version=3",
 		.objects = "sd*",
 	},
 
@@ -97,16 +97,16 @@ const generic_fuzz_config prop_fuzz_predefined_configs[] = {
 	{
 		.arch = "x86_64",
 		.name = "i82557c",
-		.args = "",
-		.extra_opts = "",
+		.args = "-netdev user,id=net0",
+		.extra_opts = ",netdev=net0",
 		.objects = "i8255*",
 	},
 
 	{
 		.arch = "x86_64",
 		.name = "i82557a",
-		.args = "",
-		.extra_opts = "",
+		.args = "-netdev user,id=net0",
+		.extra_opts = ",netdev=net0",
 		.objects = "i8255*",
 	},
 
@@ -129,8 +129,8 @@ const generic_fuzz_config prop_fuzz_predefined_configs[] = {
 	{
 		.arch = "x86_64",
 		.name = "i82550",
-		.args = "-machine q35 ",
-		.extra_opts = "",
+		.args = "-netdev user,id=net0",
+		.extra_opts = ",netdev=net0",
 		.objects = "i8255*",
 	},
 
@@ -145,7 +145,7 @@ const generic_fuzz_config prop_fuzz_predefined_configs[] = {
 	{
 		.arch = "x86_64",
 		.name = "isa-fdc",
-		.args = "-nodefaults",
+		.args = "-machine pc -nodefaults",
 		.extra_opts = "",
 		.objects = "*fdc*",
 	},
@@ -161,15 +161,15 @@ const generic_fuzz_config prop_fuzz_predefined_configs[] = {
 	{
 		.arch = "x86_64",
 		.name = "i82557b",
-		.args = "",
-		.extra_opts = "",
+		.args = "-netdev user,id=net0",
+		.extra_opts = ",netdev=net0",
 		.objects = "i8255*",
 	},
 
 	{
 		.arch = "x86_64",
 		.name = "lsi53c810",
-		.args = "-machine q35 -nodefaults -blockdev driver=null-co,read-zeroes=on,node-name=null0 -device scsi-cd,drive=null0",
+		.args = "-machine q35 -nodefaults -device scsi-cd,drive=null0 -blockdev driver=null-co,read-zeroes=on,node-name=null0",
 		.extra_opts = "",
 		.objects = "lsi53c810",
 	},
@@ -193,8 +193,8 @@ const generic_fuzz_config prop_fuzz_predefined_configs[] = {
 	{
 		.arch = "x86_64",
 		.name = "pcnet",
-		.args = "-machine q35 ",
-		.extra_opts = "",
+		.args = "-machine q35 -nodefaults -netdev user,id=net0",
+		.extra_opts = ",netdev=net0",
 		.objects = "pcnet",
 	},
 
@@ -217,7 +217,7 @@ const generic_fuzz_config prop_fuzz_predefined_configs[] = {
 	{
 		.arch = "x86_64",
 		.name = "pvscsi",
-		.args = "-machine q35 -nodefaults -blockdev driver=null-co,read-zeroes=on,node-name=null0 -device scsi-cd,drive=null0",
+		.args = "-machine q35 -nodefaults -device scsi-cd,drive=null0 -blockdev driver=null-co,read-zeroes=on,node-name=null0",
 		.extra_opts = "",
 		.objects = "pvscsi",
 	},
@@ -233,8 +233,8 @@ const generic_fuzz_config prop_fuzz_predefined_configs[] = {
 	{
 		.arch = "x86_64",
 		.name = "virtio-balloon-pci",
-		.args = "-machine q35 ",
-		.extra_opts = "",
+		.args = "-machine q35 -nodefaults",
+		.extra_opts = ",free-page-reporting=true",
 		.objects = "virtio*",
 	},
 
@@ -289,16 +289,16 @@ const generic_fuzz_config prop_fuzz_predefined_configs[] = {
 	{
 		.arch = "x86_64",
 		.name = "ne2k_pci",
-		.args = "-machine q35 ",
-		.extra_opts = "",
+		.args = "-machine q35 -nodefaults -netdev user,id=net0",
+		.extra_opts = ",netdev=net0",
 		.objects = "ne2k*",
 	},
 
 	{
 		.arch = "x86_64",
 		.name = "i82558a",
-		.args = "",
-		.extra_opts = "",
+		.args = "-netdev user,id=net0",
+		.extra_opts = ",netdev=net0",
 		.objects = "i8255*",
 	},
 
@@ -321,8 +321,8 @@ const generic_fuzz_config prop_fuzz_predefined_configs[] = {
 	{
 		.arch = "x86_64",
 		.name = "e1000-82545em",
-		.args = "",
-		.extra_opts = "",
+		.args = "-netdev user,id=net0",
+		.extra_opts = ",netdev=net0",
 		.objects = "e1000*",
 	},
 
@@ -337,16 +337,16 @@ const generic_fuzz_config prop_fuzz_predefined_configs[] = {
 	{
 		.arch = "x86_64",
 		.name = "i82559b",
-		.args = "",
-		.extra_opts = "",
+		.args = "-netdev user,id=net0",
+		.extra_opts = ",netdev=net0",
 		.objects = "i8255*",
 	},
 
 	{
 		.arch = "x86_64",
 		.name = "i82551",
-		.args = "",
-		.extra_opts = "",
+		.args = "-netdev user,id=net0",
+		.extra_opts = ",netdev=net0",
 		.objects = "i8255*",
 	},
 
@@ -369,7 +369,7 @@ const generic_fuzz_config prop_fuzz_predefined_configs[] = {
 	{
 		.arch = "x86_64",
 		.name = "virtio-rng-pci",
-		.args = "-machine q35 ",
+		.args = "-machine q35 -nodefaults",
 		.extra_opts = "",
 		.objects = "virtio*",
 	},
@@ -385,8 +385,8 @@ const generic_fuzz_config prop_fuzz_predefined_configs[] = {
 	{
 		.arch = "x86_64",
 		.name = "tulip",
-		.args = "-machine q35 ",
-		.extra_opts = "",
+		.args = "-machine q35 -nodefaults -netdev user,id=net0",
+		.extra_opts = ",netdev=net0",
 		.objects = "tulip",
 	},
 
@@ -417,8 +417,8 @@ const generic_fuzz_config prop_fuzz_predefined_configs[] = {
 	{
 		.arch = "x86_64",
 		.name = "e1000-82544gc",
-		.args = "",
-		.extra_opts = "",
+		.args = "-netdev user,id=net0",
+		.extra_opts = ",netdev=net0",
 		.objects = "e1000*",
 	},
 
@@ -433,16 +433,16 @@ const generic_fuzz_config prop_fuzz_predefined_configs[] = {
 	{
 		.arch = "x86_64",
 		.name = "e1000",
-		.args = "",
-		.extra_opts = "",
+		.args = "-M q35 -nodefaults -netdev user,id=net0",
+		.extra_opts = ",netdev=net0",
 		.objects = "e1000",
 	},
 
 	{
 		.arch = "x86_64",
 		.name = "i82562",
-		.args = "",
-		.extra_opts = "",
+		.args = "-netdev user,id=net0",
+		.extra_opts = ",netdev=net0",
 		.objects = "i8255*",
 	},
 
@@ -481,8 +481,8 @@ const generic_fuzz_config prop_fuzz_predefined_configs[] = {
 	{
 		.arch = "x86_64",
 		.name = "i82801",
-		.args = "",
-		.extra_opts = "",
+		.args = "-netdev user,id=net0",
+		.extra_opts = ",netdev=net0",
 		.objects = "i8255*",
 	},
 
@@ -529,8 +529,8 @@ const generic_fuzz_config prop_fuzz_predefined_configs[] = {
 	{
 		.arch = "x86_64",
 		.name = "i82559er",
-		.args = "",
-		.extra_opts = "",
+		.args = "-netdev user,id=net0",
+		.extra_opts = ",netdev=net0",
 		.objects = "i8255*",
 	},
 
@@ -545,16 +545,16 @@ const generic_fuzz_config prop_fuzz_predefined_configs[] = {
 	{
 		.arch = "x86_64",
 		.name = "i82559c",
-		.args = "",
-		.extra_opts = "",
+		.args = "-netdev user,id=net0",
+		.extra_opts = ",netdev=net0",
 		.objects = "i8255*",
 	},
 
 	{
 		.arch = "x86_64",
 		.name = "i82558b",
-		.args = "",
-		.extra_opts = "",
+		.args = "-netdev user,id=net0",
+		.extra_opts = ",netdev=net0",
 		.objects = "i8255*",
 	},
 
@@ -569,8 +569,8 @@ const generic_fuzz_config prop_fuzz_predefined_configs[] = {
 	{
 		.arch = "x86_64",
 		.name = "vmxnet3",
-		.args = "-machine q35 ",
-		.extra_opts = "",
+		.args = "-machine q35 -nodefaults -netdev user,id=net0",
+		.extra_opts = ",netdev=net0",
 		.objects = "vmxnet3",
 	},
 
