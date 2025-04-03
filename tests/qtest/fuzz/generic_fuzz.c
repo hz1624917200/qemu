@@ -919,9 +919,9 @@ static GString *generic_fuzz_cmdline(FuzzTarget *t)
     if (!getenv("QEMU_FUZZ_ARGS")) {
         usage();
     }
-    g_string_append_printf(cmd_line, " -display none \
-                                      -machine accel=qtest, \
-                                      -m 512M %s ", getenv("QEMU_FUZZ_ARGS"));
+    g_string_append_printf(cmd_line, " -display none"
+                                     " -machine accel=qtest,"
+                                     " -m 512M %s ", getenv("QEMU_FUZZ_ARGS"));
     return cmd_line;
 }
 
@@ -948,16 +948,25 @@ static GString *generic_fuzz_predefined_config_cmdline(FuzzTarget *t)
 
 static GString *generic_prop_fuzz_config_cmdline(FuzzTarget *t)
 {
-    gchar *args;
+    GString *args;
     const generic_fuzz_config *config = t->opaque;
     const gchar *extra_opts = g_getenv("QEMU_FUZZ_EXTRA_OPTS");
-    g_assert_nonnull(extra_opts);
+    // g_assert_nonnull(extra_opts);
+    if (!extra_opts) {
+        extra_opts = "";
+    }
     g_assert_nonnull(config->args);
 
-    args = g_string_new(NULL);
-    g_string_printf(args, "-device %s%s,%s %s", config->name, config->extra_opts, extra_opts, config->args);
-    // TODO
-    // printf("QEMU args: ");
+    args = g_string_new("");
+    g_string_printf(args, "-device %s%s%s %s", config->name, config->extra_opts, extra_opts, config->args);
+    printf("QEMU args: %s\n", args->str);
+
+    g_setenv("QEMU_FUZZ_ARCH", config->arch, 1);
+    g_setenv("QEMU_AVOID_DOUBLE_FETCH", "1", 1);
+    g_setenv("QEMU_FUZZ_ARGS", args->str, 1);
+    g_setenv("QEMU_FUZZ_OBJECTS", config->objects, 1);
+
+    g_string_free(args, true);
 
     return generic_fuzz_cmdline(t);
 }

@@ -9,8 +9,8 @@ const generic_fuzz_config prop_fuzz_predefined_configs[] = {
 	{
 		.arch = "x86_64",
 		.name = "virtio-net-pci",
-		.args = "-netdev socket,fd=5,id=hs0",
-		.extra_opts = ",netdev=hs0",
+		.args = "-M q35 -nodefaults -netdev user,id=net0",
+		.extra_opts = ",netdev=net0",
 		.objects = "virtio*",
 	},
 
@@ -41,8 +41,8 @@ const generic_fuzz_config prop_fuzz_predefined_configs[] = {
 	{
 		.arch = "x86_64",
 		.name = "nvme",
-		.args = "-machine q35 -drive id=drv0,if=none,file=null-co://,file.read-zeroes=on,format=raw -object memory-backend-ram,id=pmr0,share=on,size=8",
-		.extra_opts = ",drive=drv0,serial=foo",
+		.args = "-machine q35 -nodefaults -drive file=null-co://,id=disk0,if=none,format=raw",
+		.extra_opts = "-ns,drive=disk0,nsid=1",
 		.objects = "nvme*",
 	},
 
@@ -65,7 +65,7 @@ const generic_fuzz_config prop_fuzz_predefined_configs[] = {
 	{
 		.arch = "x86_64",
 		.name = "am53c974",
-		.args = "-drive id=disk0,if=none,file=null-co://,format=raw -nodefaults -device scsi-hd,drive=disk0",
+		.args = "-device scsi-hd,drive=disk0 -drive id=disk0,if=none,file=null-co://,format=raw -nodefaults",
 		.extra_opts = ",id=scsi",
 		.objects = "*esp* *scsi* *am53c974*",
 	},
@@ -73,16 +73,16 @@ const generic_fuzz_config prop_fuzz_predefined_configs[] = {
 	{
 		.arch = "x86_64",
 		.name = "tpci200",
-		.args = "-machine q35 ",
-		.extra_opts = ",id=ipack0",
+		.args = "-machine q35 -nodefaults",
+		.extra_opts = "",
 		.objects = "tpci200*",
 	},
 
 	{
 		.arch = "x86_64",
 		.name = "igb",
-		.args = "-netdev hubport,hubid=0,id=hs0",
-		.extra_opts = ",netdev=hs0",
+		.args = "-M q35 -nodefaults -netdev user,id=net0",
+		.extra_opts = ",netdev=net0",
 		.objects = "igb*",
 	},
 
@@ -113,8 +113,8 @@ const generic_fuzz_config prop_fuzz_predefined_configs[] = {
 	{
 		.arch = "x86_64",
 		.name = "floppy",
-		.args = "-nodefaults -drive id=disk0,file=null-co://,file.read-zeroes=on,if=none,format=raw",
-		.extra_opts = ",id=floppy0",
+		.args = "-machine pc -nodefaults -drive id=disk0,file=null-co://,file.read-zeroes=on,if=none,format=raw",
+		.extra_opts = ",drive=disk0,drive-type=288",
 		.objects = "fd* floppy* i8257",
 	},
 
@@ -129,7 +129,7 @@ const generic_fuzz_config prop_fuzz_predefined_configs[] = {
 	{
 		.arch = "x86_64",
 		.name = "i82550",
-		.args = "-netdev user,id=net0",
+		.args = "-machine q35 -nodefaults -netdev user,id=net0",
 		.extra_opts = ",netdev=net0",
 		.objects = "i8255*",
 	},
@@ -201,8 +201,8 @@ const generic_fuzz_config prop_fuzz_predefined_configs[] = {
 	{
 		.arch = "x86_64",
 		.name = "virtio-serial-pci",
-		.args = "-machine q35 ",
-		.extra_opts = ",id=vser0",
+		.args = "-machine q35 -nodefaults -chardev socket,path=/tmp/foo,server=on,wait=off,id=foo -chardev socket,path=/tmp/bar,server=on,wait=off,id=bar -device virtconsole,chardev=foo -device virtserialport,chardev=bar",
+		.extra_opts = "",
 		.objects = "virtio*",
 	},
 
@@ -249,7 +249,7 @@ const generic_fuzz_config prop_fuzz_predefined_configs[] = {
 	{
 		.arch = "x86_64",
 		.name = "qemu-xhci",
-		.args = "-machine q35 -nodefaults -drive file=null-co://,if=none,format=raw,id=disk0 -device usb-bot -device usb-storage,drive=disk0 -chardev null,id=cd0 -chardev null,id=cd1 -device usb-braille,chardev=cd0 -device usb-ccid -device usb-ccid -device usb-kbd -device usb-mouse -device usb-serial,chardev=cd1 -device usb-tablet -device usb-wacom-tablet -device usb-tablet,bus=xhci.0",
+		.args = "-machine q35 -nodefaults -drive file=null-co://,if=none,format=raw,id=disk0 -device usb-tablet,bus=xhci.0 -device usb-bot -device usb-storage,drive=disk0 -chardev null,id=cd0 -chardev null,id=cd1 -device usb-braille,chardev=cd0 -device usb-ccid -device usb-ccid -device usb-kbd -device usb-mouse -device usb-serial,chardev=cd1 -device usb-tablet -device usb-wacom-tablet",
 		.extra_opts = ",id=xhci",
 		.objects = "*usb* *uhci* *xhci*",
 	},
@@ -329,7 +329,7 @@ const generic_fuzz_config prop_fuzz_predefined_configs[] = {
 	{
 		.arch = "x86_64",
 		.name = "ide-cd",
-		.args = "-nodefaults -drive file=null-co://,if=none,format=raw,id=disk0",
+		.args = "-machine pc -nodefaults -drive file=null-co://,if=none,format=raw,id=disk0",
 		.extra_opts = ",drive=disk0",
 		.objects = "*ide*",
 	},
@@ -377,8 +377,8 @@ const generic_fuzz_config prop_fuzz_predefined_configs[] = {
 	{
 		.arch = "x86_64",
 		.name = "virtio-scsi-pci",
-		.args = "-machine q35 -drive id=drv0,if=none,file=null-co://,file.read-zeroes=on,format=raw -device scsi-hd,bus=vs0.0,drive=drv0 -drive file=blkdebug::null-co://,file.image.read-zeroes=on,if=none,id=dr1,format=raw,file.align=4k -device scsi-hd,drive=dr1,lun=0,scsi-id=1",
-		.extra_opts = ",id=vs0",
+		.args = "-machine q35 -device scsi-hd,drive=disk0 -drive file=null-co://,id=disk0,if=none,format=raw",
+		.extra_opts = ",num_queues=8",
 		.objects = "scsi* virtio*",
 	},
 
@@ -401,8 +401,8 @@ const generic_fuzz_config prop_fuzz_predefined_configs[] = {
 	{
 		.arch = "x86_64",
 		.name = "e1000e",
-		.args = "-netdev socket,fd=5,id=hs0",
-		.extra_opts = ",netdev=hs0",
+		.args = "-M q35 -nodefaults -netdev user,id=net0",
+		.extra_opts = ",netdev=net0",
 		.objects = "e1000e",
 	},
 
@@ -425,8 +425,8 @@ const generic_fuzz_config prop_fuzz_predefined_configs[] = {
 	{
 		.arch = "x86_64",
 		.name = "virtio-blk-pci",
-		.args = "-machine q35 -drive if=none,id=drive0,file=/tmp/qtest.HMQC42,format=raw,auto-read-only=off",
-		.extra_opts = ",id=drv0,drive=drive0,addr=4.0",
+		.args = "-machine q35 -drive file=null-co://,id=drive0,if=none,format=raw",
+		.extra_opts = ",drive=drive0",
 		.objects = "virtio*",
 	},
 
@@ -449,7 +449,7 @@ const generic_fuzz_config prop_fuzz_predefined_configs[] = {
 	{
 		.arch = "x86_64",
 		.name = "AC97",
-		.args = "-machine q35 -audiodev none,id=snd0,out.frequency=44100,in.frequency=44100",
+		.args = "-machine q35 -nodefaults -audiodev none,id=snd0 -nodefaults",
 		.extra_opts = ",audiodev=snd0",
 		.objects = "ac97*",
 	},
@@ -473,8 +473,8 @@ const generic_fuzz_config prop_fuzz_predefined_configs[] = {
 	{
 		.arch = "x86_64",
 		.name = "ufs",
-		.args = "-blockdev null-co,node-name=drv0,read-zeroes=on -device ufs-lu,bus=ufs0,drive=drv0,lun=0",
-		.extra_opts = ",id=ufs0",
+		.args = "-M q35 -nodefaults -drive file=null-co://,if=none,id=disk0",
+		.extra_opts = "-lu,drive=disk0,bus=ufs_bus",
 		.objects = "ufs*",
 	},
 
@@ -537,8 +537,8 @@ const generic_fuzz_config prop_fuzz_predefined_configs[] = {
 	{
 		.arch = "x86_64",
 		.name = "megasas",
-		.args = "-machine q35 -drive id=drv0,if=none,file=null-co://,file.read-zeroes=on,format=raw -device scsi-hd,bus=scsi0.0,drive=drv0",
-		.extra_opts = ",id=scsi0",
+		.args = "-machine q35 -nodefaults -device scsi-cd,drive=null0 -blockdev driver=null-co,read-zeroes=on,node-name=null0",
+		.extra_opts = "",
 		.objects = "megasas*",
 	},
 
@@ -561,7 +561,7 @@ const generic_fuzz_config prop_fuzz_predefined_configs[] = {
 	{
 		.arch = "x86_64",
 		.name = "ide-hd",
-		.args = "-nodefaults -drive file=null-co://,if=none,format=raw,id=disk0",
+		.args = "-machine pc -nodefaults -drive file=null-co://,if=none,format=raw,id=disk0",
 		.extra_opts = ",drive=disk0",
 		.objects = "*ide*",
 	},
@@ -577,8 +577,8 @@ const generic_fuzz_config prop_fuzz_predefined_configs[] = {
 	{
 		.arch = "x86_64",
 		.name = "ES1370",
-		.args = "-machine q35 -audiodev driver=none,id=audio0",
-		.extra_opts = ",audiodev=audio0",
+		.args = "-machine q35 -nodefaults -audiodev none,id=snd0 -nodefaults",
+		.extra_opts = ",audiodev=snd0",
 		.objects = "es1370*",
 	},
 
