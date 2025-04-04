@@ -949,7 +949,7 @@ static GString *generic_fuzz_predefined_config_cmdline(FuzzTarget *t)
 static GString *generic_prop_fuzz_config_cmdline(FuzzTarget *t)
 {
     GString *args;
-    const generic_fuzz_config *config = t->opaque;
+    const generic_prop_fuzz_config *config = t->opaque;
     const gchar *extra_opts = g_getenv("QEMU_FUZZ_EXTRA_OPTS");
     // g_assert_nonnull(extra_opts);
     if (!extra_opts) {
@@ -958,7 +958,13 @@ static GString *generic_prop_fuzz_config_cmdline(FuzzTarget *t)
     g_assert_nonnull(config->args);
 
     args = g_string_new("");
-    g_string_printf(args, "-device %s%s%s %s", config->name, config->extra_opts, extra_opts, config->args);
+    if (config->append_device) {
+        g_string_printf(args, "%s -device %s%s%s", config->args,
+                        config->name, config->extra_opts, extra_opts);
+    } else {
+        g_string_printf(args, "-device %s%s%s %s", config->name,
+                        config->extra_opts, extra_opts, config->args);
+    }
     printf("QEMU args: %s\n", args->str);
 
     g_setenv("QEMU_FUZZ_ARCH", config->arch, 1);
@@ -996,7 +1002,7 @@ static void register_generic_fuzz_targets(void)
     }
 
     for (int i = 0; i < ARRAY_SIZE(prop_fuzz_predefined_configs); i++) {
-        const generic_fuzz_config *config = prop_fuzz_predefined_configs + i;
+        const generic_prop_fuzz_config *config = prop_fuzz_predefined_configs + i;
         fuzz_add_target(&(FuzzTarget){
                 .name = g_strconcat("generic-prop-fuzz-", config->name, NULL),
                 .description = "Predefined generic-fuzz config.",

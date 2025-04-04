@@ -18,7 +18,7 @@
     "-drive file=null-co://,if=none,format=raw,id=disk0 -device usb-storage,port=1,drive=disk0"
 
 typedef struct generic_fuzz_config {
-    const char *arch, *name, *args, *objects, *extra_opts;
+    const char *arch, *name, *args, *objects;
     gchar* (*argfunc)(void); /* Result must be freeable by g_free() */
 } generic_fuzz_config;
 
