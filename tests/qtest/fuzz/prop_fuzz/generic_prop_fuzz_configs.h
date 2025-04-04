@@ -448,7 +448,7 @@ const generic_prop_fuzz_config prop_fuzz_predefined_configs[] = {
 		.name = "i82562",
 		.args = "-netdev user,id=net0",
 		.extra_opts = ",netdev=net0",
-		.objects = "i8255*",
+		.objects = "i82*",
 	},
 
 	{
@@ -488,7 +488,7 @@ const generic_prop_fuzz_config prop_fuzz_predefined_configs[] = {
 		.name = "i82801",
 		.args = "-netdev user,id=net0",
 		.extra_opts = ",netdev=net0",
-		.objects = "i8255*",
+		.objects = "i82*",
 	},
 
 	{
